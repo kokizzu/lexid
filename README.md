@@ -94,7 +94,7 @@ first 0Vsccp-----00
 last 0Vsccp--a8P00
  len= 13
 
-NanoID Separator=`` MinTimeLength=11
+NanoID Separator=`` MinNanoTimeLength=11
 first 0PDmclT1CmN-----00
  len= 18
 last 0PDmclT1CmN--a8P00

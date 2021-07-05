@@ -23,12 +23,14 @@ var Now time.Time
 var AtomicCounter uint32
 var Separator = `~`
 var ServerUniqueId = `~0`
-var MinCounterLength = len(S.EncodeCB63(math.MaxUint32, 1))
-var MinTimeLength = 0
-var MinNanoTimeLength = 0
+var MinCounterLength = len(S.EncodeCB63(math.MaxUint32, 0))
+var MinTimeLength = 0     // >=6 for 2021-07-06
+var MinNanoTimeLength = 0 // >=11 for 2021-07-06
 
 func init() {
 	Now = fastime.Now()
+	MinTimeLength = len(S.EncodeCB63(time.Now().Unix(), 0))
+	MinNanoTimeLength = len(S.EncodeCB63(time.Now().UnixNano(), 0))
 }
 
 // generate unique ID (second, smaller)
@@ -52,13 +54,20 @@ type Segments struct {
 func Parse(id string) (*Segments, error) {
 	var segments []string
 	if Separator == `` {
-		end := MinTimeLength + MinCounterLength
-		if len(id) < end {
-			return nil, fmt.Errorf(`invalid lexid length: %s %d < %d+%d`, id, len(id), MinTimeLength, MinCounterLength)
+		// try parse as unixnano
+		start := MinNanoTimeLength
+		end := start + MinCounterLength
+		if len(id) <= end {
+			// try parse as unix
+			start = MinTimeLength
+			end = start + MinCounterLength
+			if len(id) <= end {
+				return nil, fmt.Errorf(`invalid lexid length: %s %d < %d+%d`, id, len(id), MinTimeLength, MinCounterLength)
+			}
 		}
 		segments = []string{
-			id[:MinTimeLength],
-			id[MinTimeLength:end],
+			id[:start],
+			id[start:end],
 			id[end:],
 		}
 	} else {
@@ -100,8 +109,8 @@ func NewGenerator(serverUniqueId string) *Generator {
 		Separator:         Separator,
 		ServerUniqueId:    serverUniqueId,
 		MinCounterLength:  len(S.EncodeCB63(math.MaxUint32, 1)),
-		MinTimeLength:     0,
-		MinNanoTimeLength: 0,
+		MinTimeLength:     MinTimeLength,
+		MinNanoTimeLength: MinNanoTimeLength,
 	}
 }
 
@@ -118,13 +127,20 @@ func (gen *Generator) NanoID() string {
 func (gen *Generator) Parse(id string) (*Segments, error) {
 	var segments []string
 	if gen.Separator == `` {
-		end := gen.MinTimeLength + gen.MinCounterLength
-		if len(id) < end {
-			return nil, fmt.Errorf(`invalid lexid length: %s %d < %d+%d`, id, len(id), gen.MinTimeLength, gen.MinCounterLength)
+		// try parse as unix
+		start := gen.MinNanoTimeLength
+		end := start + gen.MinCounterLength
+		if len(id) <= end {
+			// try parse as unixnano
+			start = gen.MinTimeLength
+			end = start + gen.MinCounterLength
+			if len(id) <= end {
+				return nil, fmt.Errorf(`invalid lexid length: %s %d < %d+%d`, id, len(id), gen.MinTimeLength, gen.MinCounterLength)
+			}
 		}
 		segments = []string{
-			id[:gen.MinTimeLength],
-			id[gen.MinTimeLength:end],
+			id[:start],
+			id[start:end],
 			id[end:],
 		}
 	} else {
