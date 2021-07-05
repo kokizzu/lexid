@@ -7,7 +7,7 @@ Consist of 3 segment:
 - Unix or UnixNano (current time)
 - Atomic Counter (limit to single core)
 - Server Unique ID (or process or thread ID)
-- 2 separator character (default: `~`)
+- 2 separator character (default: `~`, can be removed)
 
 Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/master/S), URL-safe encoding.
 
@@ -118,7 +118,7 @@ last 0PDm7hn0KSs~2o80~0
 
 it might not lexicographically ordered if:
 - the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if order doesn't matter if it's the event happened on the same second/nanodescond)
-- the `time` segment already pass current length, you might want to set `MinTimeLength` to `>6` and `MinNanoTimeLength` to `>11` 
+- the `time` segment already pass current length or you set `MinTimeLength` or `MinNanoTimeLength` too low, workaround: set `MinTimeLength` to `>6` and `MinNanoTimeLength` to `>11`
 - you change `Separator` to other character that have lower ASCII/UTF-8 encoding value
 
 it might duplicate if:
