@@ -10,7 +10,6 @@ Consist of 3 segment:
 - 2 separator character (default: `~`, can be removed, 2x 0-1 character)
 
 ```
-Default:
 Min length (ID without separator and server ID): 
   6+6+0+0 = 12 bytes
 Max length (NanoID with separator and server ID): 
@@ -82,9 +81,9 @@ func main() {
 }
 ```
 
-## Example generated id
+## Example generated ID
 
-this shows minimum length and length after 10 million generated id with specific configuration (7-15 characters for `ID`, 10-20 characters for `NanoID`)
+this shows minimum length and length after 1-10 million generated ID with specific configuration (7-15 characters for `ID`, 10-20 characters for `NanoID`)
 
 ```
 ID 
@@ -107,9 +106,9 @@ last 0Vsccp--a8P0
  len= 12
 
 NanoID Separator=`` ServerUniqueId=`` MinNanoTimeLength=11 (default)
-first 0PDmclT1CmN-----00
+first 0PDmclT1CmN-----0
  len= 17
-last 0PDmclT1CmN--a8P00
+last 0PDmclT1CmN--a8P0
  len= 17
  
  
@@ -128,9 +127,9 @@ last 0PDmclT1CmN~a8P0
  
 ID MinCounterLength = 0
 first 0Vsc0a~0~0 
- len=10
+ len= 10
 last  0Vsc0a~2o80~0 
- len=13
+ len= 13
 
 NanoID MinCounterLength = 0
 first 0PDm7hn0KSs~0~0
@@ -144,13 +143,13 @@ last 0PDm7hn0KSs~2o80~0
 it might not lexicographically ordered if:
 - the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if ordering doesn't matter if the event happened on the same second/nanodescond).
 - you change `Separator` to other character that have lower ASCII/UTF-8 encoding value.
-- you set `Min*Length` too low, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`.
+- you set `Min*Length` less than recommended value, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`.
 - the `time` segment already pass the `MinTimeLength`, earliest will happen at year 4147.
 
 it might duplicate if:
 - your processor so powerful, that it can call the function above faster than 4 billion (`MaxUint32`=`4,294,967,295`) per second, there's no workaround for this.
 - you set the `AtomicCounter` multiple time on the same second/nanosecond (eg. to a number lower than current counter).
-- using same/shared server/process/thread id on different server/process/thread.
+- using same/shared `ServerUniqueID` on different server/process/thread.
 - unsynchronized time on same server.
 - you change `Separator` to empty string or characters that are in `EncodeCB63` with `Min*Length` less than recommended value.
 
