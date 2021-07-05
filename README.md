@@ -234,6 +234,6 @@ it will impossible to parse (to get time, counter, and server id) if:
 - configurable (length, separator, server/process/thread id)
 - same or less length for string representation (depends on your configuration)
 - EncodeCB63 (base64-variant) vs base32 (20% space usage)
-- defaults to string representation (12 to 19+N bytes) vs have 12-bytes binary representation
+- defaults to string representation (12 to 17+N bytes) vs have 12-bytes binary representation (20 bytes for string representation)
 - server/process/thread id are optional
 - can be offsetted (subtracted with certain value, eg. `2020-01-01 00:00:00`)
