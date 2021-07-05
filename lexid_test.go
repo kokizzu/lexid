@@ -309,6 +309,13 @@ func TestFrom(t *testing.T) {
 	assert.Equal(t, `------~------~0`, id)
 	id = lexid.FromUnix(0)
 	assert.Equal(t, `------~-----0~0`, id)
+	
+	id = lexid.FromNanoCounterIdent(0, 0, `~A`)
+	assert.Equal(t, `-----------~------~A`, id)
+	id = lexid.FromNanoCounter(0, 0)
+	assert.Equal(t, `-----------~------~0`, id)
+	id = lexid.FromNano(0)
+	assert.Equal(t, `-----------~-----1~0`, id)
 }
 
 func TestFromObject(t *testing.T) {
