@@ -129,39 +129,39 @@ shows minimum length and length after 1-10 million generated ID with specific co
 Default config (fixed length):
 ```
 ID 
-first 0Vsccp~-----0~0
+first: 0Vsccp~-----0~0
  len= 15
-last 0Vsccp~--a8P0~0
+last: 0Vsccp~--a8P0~0
  len= 15
 
 NanoID
-first 0PDmclT1CmN~-----0~0
+first: 0PDmclT1CmN~-----0~0
  len= 20
-last 0PDmclT1CmN~--a8P0~0
+last: 0PDmclT1CmN~--a8P0~0
  len= 20
 ```
  
 Separatorless config and without Identity:
 ```
 ID Separator=`` Identity=`` MinTimeLength=6 (default)
-first 0Vsccp-----0
+first: 0Vsccp-----0
  len= 12
-last 0Vsccp--a8P0
+last: 0Vsccp--a8P0
  len= 12
 
 NanoID Separator=`` Identity=`` MinNanoTimeLength=11 (default)
-first 0PDmclT1CmN-----0
+first: 0PDmclT1CmN-----0
  len= 17
-last 0PDmclT1CmN--a8P0
+last: 0PDmclT1CmN--a8P0
  len= 17
 ```
 
-Config with variable length (not lexicographically sortable):
+Variable length config (not lexicographically sortable):
 ```
 ID MinCounterLength=0
-first 0Vsc0a~0~0 
+first: 0Vsc0a~0~0 
  len= 10
-last  0Vsc0a~2o80~0 
+last:  0Vsc0a~2o80~0 
  len= 13
 
 NanoID MinCounterLength=0
@@ -171,40 +171,40 @@ last 0PDm7hn0KSs~2o80~0
  len= 18 
 ```
  
-Config that allows duplicate:
+Allows duplicate config:
 ```
 ID Separator=`` Identity=`` MinCounterLength=0
-first 0Vsccp0
+first: 0Vsccp0
  len= 7
-last 0Vsccpa8P0
+last: 0Vsccpa8P0
  len= 10
 
 NanoID Separator=`` Identity=`` MinCounterLength=0
-first 0PDmclT1CmN0
+first: 0PDmclT1CmN0
  len= 12
-last 0PDmclT1CmN~a8P0
- len= 16
+last: 0PDmclT1CmNa8P0
+ len= 15
 ``` 
 
-Config that offsetted (reduce time segment by 2020-01-01)
+Offsetted config (reduce time segment by 2020-01-01):
 ```
-ID MinTimeLength=0
-example 1pkHb~0~0
+ID MinTimeLength=0 MinCounterLenght=0
+example: 1pkHb~0~0
  len= 9
  
-NanoID MinNanoTimeLength=0
-example 1dGr84ixhV~1~0
+NanoID MinNanoTimeLength=0 MinCounterLenght=0
+example: 1dGr84ixhV~1~0
  len= 14
 ``` 
  
-Config that offsetted with minimum length, allows duplicate:
+Offsetted with minimum length and allows duplicate:
 ```
-ID MinTimeLength=0 Separator=`` Identity=``
-example 1pkHb0
+ID MinTimeLength=0 MinCounterLength=0 Separator=`` Identity=``
+example: 1pkHb0
  len= 6
  
-NanoID MinNanoTimeLength=0 Separator=`` Identity=``
-example 1dGr84ixhV1
+NanoID MinNanoTimeLength=0 MinCounterLength=0 Separator=`` Identity=``
+example: 1dGr84ixhV1
  len= 11
 ```
 
