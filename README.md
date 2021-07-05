@@ -38,17 +38,17 @@ Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/m
 
 ```
 cpu: AMD Ryzen 3 3100 4-Core Processor    
-BenchmarkShortuuid-8   	  139238	  8461 ns/op
-BenchmarkKsuid-8       	  749536	  1497 ns/op
-BenchmarkNanoid-8      	  775210	  1490 ns/op
-BenchmarkUuid-8        	  875721	  1340 ns/op
-BenchmarkTime-8        	 1674458	   712.9 ns/op
-BenchmarkSnowflake-8   	 4909974	   244.8 ns/op
-BenchmarkLexIdNano-8   	 7718455	   142.0 ns/op
-BenchmarkLexId-8       	 9906074	   118.8 ns/op
-BenchmarkLexIdNoSep-8  	10020199	   118.1 ns/op
-BenchmarkLexIdNoLex-8  	10475790	   116.3 ns/op
-BenchmarkXid-8         	13322355	    86.91 ns/op
+BenchmarkShortuuid-8       140167     8733 ns/op
+BenchmarkKsuid-8           679804     1570 ns/op
+BenchmarkNanoid-8          777684     1524 ns/op
+BenchmarkUuid-8            869036     1345 ns/op
+BenchmarkTime-8           1653766      716.2 ns/op
+BenchmarkSnowflake-8      4908016      246.1 ns/op
+BenchmarkLexIdNano-8      9147108      122.6 ns/op
+BenchmarkLexIdNoLex-8    10405467      117.7 ns/op
+BenchmarkLexIdNoSep-8    10093414      115.6 ns/op
+BenchmarkLexId-8         10154136      114.3 ns/op
+BenchmarkXid-8           13861094       85.89 ns/op
 PASS
 ```
 
