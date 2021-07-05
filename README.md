@@ -103,8 +103,8 @@ last 0PDm7hn0KSs~2o80~0
 ## Gotchas
 
 it might not lexicographically ordered if:
-- the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second for example
-- the `time` already pass current length, you might want to set `MinTimeLength` to `>6` and `MinNanoTimeLength` to `>11` 
+- the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if order doesn't matter if it's the event happened on the same second/nanodescond)
+- the `time` segment already pass current length, you might want to set `MinTimeLength` to `>6` and `MinNanoTimeLength` to `>11` 
 - you change `Separator` to other character that have lower ASCII/UTF-8 encoding value
 
 it might duplicate if:
@@ -113,7 +113,7 @@ it might duplicate if:
 
 ## Difference with XID
 
-- have locks, so by default only utilize single core performance (unless using OO version)
+- have locks, so by default only utilize single core performance (unless using OO version to spawn multiple instance with different server/process/thread id)
 - 256x more uniqueness generated id per sec guaranteed: 4 billion vs 16 million
 - configurable (length, separator, server/process/thread id)
 - same or less length for string representation (depends on your configuration)
