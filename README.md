@@ -76,9 +76,9 @@ func main() {
 	// optional starting counter
 	lexid.Config.AtomicCounter = 0
 	
-	// optional separator, 
-	// you can set this to empty string if you set the Min*TimeLength >= 6 or 11
-	lexid.Config.Separator = `~`
+	// optional separator
+	// you can set this to empty string if you keep the Min*TimeLength config >= 6 or 11
+	lexid.Config.Separator = ``
 	
 	// optional minimum counter segment length, 
 	// if set lower than 6 will not lexicographically orderable anymore
@@ -113,9 +113,9 @@ func main() {
 	// gen.AtomicCounter = 0
 	// gen.MinCounterLength = 6
 	// gen.MinTimeLength = 6
-	// gen.MinNanoTimeLength = 6
-	// gen.MinDateOffset = lexid.OffsetY2020.Unix()
-	// gen.MinNanoDateOffset = lexid.OffsetY2020.Unix()
+	// gen.MinNanoTimeLength = 11
+	// gen.MinDateOffset = 0 
+	// gen.MinNanoDateOffset = 0 
 	
 	id = gen.ID()
 	nanoid = gen.NanoID()
@@ -189,11 +189,11 @@ last 0PDmclT1CmN~a8P0
 Config that offsetted (reduce time segment by 2020-01-01)
 ```
 ID MinTimeLength=0
-offset example 1pkHb~0~0
+example 1pkHb~0~0
  len= 9
  
 NanoID MinNanoTimeLength=0
-offset nano example 1dGr84ixhV~1~0
+example 1dGr84ixhV~1~0
  len= 14
 ``` 
  
@@ -204,7 +204,7 @@ example 1pkHb0
  len= 6
  
 NanoID MinNanoTimeLength=0 Separator=`` Identity=``
-nano example 1dGr84ixhV1
+example 1dGr84ixhV1
  len= 11
 ```
 
@@ -231,9 +231,8 @@ it will impossible to parse (to get time, counter, and server id) if:
 
 - have locks, so by default can only utilize single core (unless using the object-oriented version to spawn multiple instance with different server/process/thread id)
 - 256x more uniqueness generated id per sec guaranteed: 4 billion vs 16 million
-- configurable (length, separator, server/process/thread id)
-- same or less length for string representation (depends on your configuration)
-- EncodeCB63 (base64-variant) vs base32 (20% space usage)
+- configurable (length, separator, server/process/thread identity, date offset)
+- EncodeCB63 (base64-variant) vs base32 (20% bigger)
 - defaults to string representation (12 to 17+N bytes) vs have 12-bytes binary representation (20 bytes for string representation)
 - server/process/thread id are optional
 - can be offsetted (subtracted with certain value, eg. `2020-01-01 00:00:00`)

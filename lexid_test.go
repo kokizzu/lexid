@@ -13,13 +13,13 @@ import (
 	"github.com/kokizzu/gotro/S"
 	"github.com/kokizzu/lexid"
 	"github.com/lithammer/shortuuid/v3"
-	"github.com/matoous/go-nanoid/v2"
+	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/rs/xid"
 	"github.com/segmentio/ksuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRecommendedMinLength(t *testing.T) {
+func ExampleRecommendedMinLength() {
 	L.Print(`recommended MinDateOffset`, lexid.Offset2020.Unix())
 	L.Print(`recommended MinNanoDateOffset`, lexid.Offset2020.UnixNano())
 	L.Print(`recommended/default MinCounterLength`, lexid.Config.MinCounterLength)
@@ -28,7 +28,7 @@ func TestRecommendedMinLength(t *testing.T) {
 
 	timeOverflow := `zzzzzz~0~0`
 	seg, err := lexid.Parse(timeOverflow, false)
-	assert.Nil(t, err)
+	L.PanicIf(err, `failed parse timeOverflow`)
 	L.Describe(seg)
 	print(`TimeLength=6 will overflow at`, time.Unix(seg.Time, 0).String())
 	// UnixNano will never overflow
@@ -44,20 +44,6 @@ func TestRecommendedMinLength(t *testing.T) {
 	print(`offset nano example`, lexid.NanoID())
 }
 
-func BenchmarkKsuid(b *testing.B) {
-	for z := 0; z < b.N; z++ {
-		res := ksuid.New().String()
-		_ = res
-	}
-}
-
-func BenchmarkTime(b *testing.B) {
-	for z := 0; z < b.N; z++ {
-		res := time.Now().String()
-		_ = res
-	}
-}
-
 func BenchmarkShortuuid(b *testing.B) {
 	for z := 0; z < b.N; z++ {
 		res := shortuuid.New()
@@ -65,23 +51,9 @@ func BenchmarkShortuuid(b *testing.B) {
 	}
 }
 
-func BenchmarkXid(b *testing.B) {
+func BenchmarkKsuid(b *testing.B) {
 	for z := 0; z < b.N; z++ {
-		res := xid.New().String()
-		_ = res
-	}
-}
-
-func BenchmarkSnowflake(b *testing.B) {
-	for z := 0; z < b.N; z++ {
-		res := I.UToS(snowflake.ID())
-		_ = res
-	}
-}
-
-func BenchmarkUuid(b *testing.B) {
-	for z := 0; z < b.N; z++ {
-		res := uuid.New().String()
+		res := ksuid.New().String()
 		_ = res
 	}
 }
@@ -94,27 +66,23 @@ func BenchmarkNanoid(b *testing.B) {
 	}
 }
 
-func BenchmarkLexIdNoLex(b *testing.B) {
-	lexid.Config.Separator = ``
-	lexid.Config.MinTimeLength = 0
-	lexid.Config.MinCounterLength = 0
+func BenchmarkUuid(b *testing.B) {
 	for z := 0; z < b.N; z++ {
-		res := lexid.ID()
+		res := uuid.New().String()
 		_ = res
 	}
 }
 
-func BenchmarkLexIdNoSep(b *testing.B) {
-	lexid.Config.Separator = ``
+func BenchmarkTime(b *testing.B) {
 	for z := 0; z < b.N; z++ {
-		res := lexid.ID()
+		res := time.Now().String()
 		_ = res
 	}
 }
 
-func BenchmarkLexId(b *testing.B) {
+func BenchmarkSnowflake(b *testing.B) {
 	for z := 0; z < b.N; z++ {
-		res := lexid.ID()
+		res := I.UToS(snowflake.ID())
 		_ = res
 	}
 }
@@ -126,12 +94,46 @@ func BenchmarkLexIdNano(b *testing.B) {
 	}
 }
 
+func BenchmarkLexId(b *testing.B) {
+	for z := 0; z < b.N; z++ {
+		res := lexid.ID()
+		_ = res
+	}
+}
+
+// without separator
+func BenchmarkLexIdNoSep(b *testing.B) {
+	lexid.Config.Separator = ``
+	for z := 0; z < b.N; z++ {
+		res := lexid.ID()
+		_ = res
+	}
+}
+
+// without orderable/sortable property
+func BenchmarkLexIdNoLex(b *testing.B) {
+	lexid.Config.Separator = ``
+	lexid.Config.MinTimeLength = 0
+	lexid.Config.MinCounterLength = 0
+	for z := 0; z < b.N; z++ {
+		res := lexid.ID()
+		_ = res
+	}
+}
+
+func BenchmarkXid(b *testing.B) {
+	for z := 0; z < b.N; z++ {
+		res := xid.New().String()
+		_ = res
+	}
+}
+
 func print(prefix, id string) {
 	fmt.Println(prefix, id)
 	fmt.Println(` len=`, len(id))
 }
 
-const N = 1_000_000
+const N = 1_000_000 // not 10 mil because there's map to check duplicate
 
 func TestLexiId(t *testing.T) {
 	m := map[string]bool{}
