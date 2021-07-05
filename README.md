@@ -1,5 +1,5 @@
 
-# LexID: fast lexicographically orderable ID
+# LexID: Fast lexicographically orderable/sortable ID
 
 Can generate ~10 millions id per second (single core only).
 
@@ -11,7 +11,7 @@ Consist of 3 segment:
 
 Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/master/S), URL-safe encoding.
 
-## Configuration Difference
+## Configuration Comparison
 
 | Type   | Min[Nano]<br/>Date<br/>Offset | Min[Nano]<br/>Time<br/>Length | Min<br/>Counter<br/>Length | Separator | Byte use<br/>without<br/>Identity | Ordered | Unique |
 |:------:|------------------------------:|------------------------------:|---------------------------:|:---------:|----------------------------------:|:-------:|:------:|
@@ -28,7 +28,7 @@ Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/m
 | NanoID | 1577836800<br>000000000       | 0                             | 0                          | ~         | 12                                | N       | Y      |
 | NanoID | 1577836800<br>000000000       | 0                             | 0                          |           | 11                                | N       | N      |
 
-Uniqueness configuration (when `Separator` or `Min*TimeLength` set)
+Uniqueness configuration (when `Separator` or `Min*TimeLength` set, this is the default)
 ```
 Min length (ID with separator and server identity): 
   6+6+0+1 = 13 bytes
@@ -38,7 +38,7 @@ Max length (NanoID with separator and server identity):
   10+1+N+1 = 12+N bytes (with 2020 offset)
 ``` 
 
-Ordered/sortable configuration (when `Min*TimeLength` set)
+Ordered/sortable configuration (when `Min*TimeLength` set, may unset the `Separator`)
 ```
 Min length (ID without separator and server identity): 
   6+6+0+0 = 12 bytes
@@ -129,39 +129,39 @@ shows minimum length and length after 1-10 million generated ID with specific co
 Default config (fixed length):
 ```
 ID 
-first 0Vsccp~-----0~0
+first: 0Vsccp~-----0~0
  len= 15
-last 0Vsccp~--a8P0~0
+last: 0Vsccp~--a8P0~0
  len= 15
 
 NanoID
-first 0PDmclT1CmN~-----0~0
+first: 0PDmclT1CmN~-----0~0
  len= 20
-last 0PDmclT1CmN~--a8P0~0
+last: 0PDmclT1CmN~--a8P0~0
  len= 20
 ```
  
 Separatorless config and without Identity:
 ```
 ID Separator=`` Identity=`` MinTimeLength=6 (default)
-first 0Vsccp-----0
+first: 0Vsccp-----0
  len= 12
-last 0Vsccp--a8P0
+last: 0Vsccp--a8P0
  len= 12
 
 NanoID Separator=`` Identity=`` MinNanoTimeLength=11 (default)
-first 0PDmclT1CmN-----0
+first: 0PDmclT1CmN-----0
  len= 17
-last 0PDmclT1CmN--a8P0
+last: 0PDmclT1CmN--a8P0
  len= 17
 ```
 
-Config with variable length (not lexicographically sortable):
+Variable length config (not lexicographically sortable):
 ```
 ID MinCounterLength=0
-first 0Vsc0a~0~0 
+first: 0Vsc0a~0~0 
  len= 10
-last  0Vsc0a~2o80~0 
+last:  0Vsc0a~2o80~0 
  len= 13
 
 NanoID MinCounterLength=0
@@ -171,61 +171,62 @@ last 0PDm7hn0KSs~2o80~0
  len= 18 
 ```
  
-Config that allows duplicate:
+Allows duplicate config:
 ```
 ID Separator=`` Identity=`` MinCounterLength=0
-first 0Vsccp0
+first: 0Vsccp0
  len= 7
-last 0Vsccpa8P0
+last: 0Vsccpa8P0
  len= 10
 
 NanoID Separator=`` Identity=`` MinCounterLength=0
-first 0PDmclT1CmN0
+first: 0PDmclT1CmN0
  len= 12
-last 0PDmclT1CmN~a8P0
- len= 16
+last: 0PDmclT1CmNa8P0
+ len= 15
 ``` 
 
-Config that offsetted (reduce time segment by 2020-01-01)
+Offsetted config (reduce time segment by 2020-01-01):
 ```
-ID MinTimeLength=0
-example 1pkHb~0~0
+ID MinTimeLength=0 MinCounterLenght=0
+example: 1pkHb~0~0
  len= 9
  
-NanoID MinNanoTimeLength=0
-example 1dGr84ixhV~1~0
+NanoID MinNanoTimeLength=0 MinCounterLenght=0
+example: 1dGr84ixhV~1~0
  len= 14
 ``` 
  
-Config that offsetted with minimum length, allows duplicate:
+Offsetted with minimum length and allows duplicate:
 ```
-ID MinTimeLength=0 Separator=`` Identity=``
-example 1pkHb0
+ID MinTimeLength=0 MinCounterLength=0 Separator=`` Identity=``
+example: 1pkHb0
  len= 6
  
-NanoID MinNanoTimeLength=0 Separator=`` Identity=``
-example 1dGr84ixhV1
+NanoID MinNanoTimeLength=0 MinCounterLength=0 Separator=`` Identity=``
+example: 1dGr84ixhV1
  len= 11
 ```
 
 ## Gotchas
 
-it might not lexicographically ordered if:
+it might not lexicographically ordered/sorted if:
 - the `AtomicCounter` is overflowed on the exact same second/nanosecond, can be happening when your processor able to call `ID()` function more than 4 billion (`MaxUint32`=`4,294,967,295`) times per second.
 - you change `Separator` to other character that have lower ASCII/UTF-8 encoding value.
 - you set `Min*Length` less than recommended value, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`.
-- the `time` segment already pass the `MinTimeLength`, earliest will happen at year 4147.
+- you unset `Separator` and set `MinCounterLength` lower than `6`
+- the `time` segment already pass the `MinTimeLength=6`, earliest will happen at year 4147.
 
 it might duplicate if:
 - your processor so powerful, that it can call the function `ID()` faster than 4 billion times per second, workaround: use `NanoID()`.
 - you set the `AtomicCounter` multiple time on the same second/nanosecond (eg. to a number lower than current counter).
 - using same/shared `Identity` on different server/process/thread.
 - unsynchronized time on same server.
-- you set `Min*DateOffset` too low/differently on each run.
+- you set `Min*DateOffset` too low or differently on each run.
 - you change `Separator` to empty string or characters that are in `EncodeCB63` with `Min*Length` less than recommended value.
 
 it will impossible to parse (to get time, counter, and server id) if:
-- you set `Separator` to empty string and all other `Min*Length` to lower than recommended value.
+- you unset `Separator` and `Min*Length` to lower than recommended value.
 
 ## Difference with XID
 
