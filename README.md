@@ -99,17 +99,30 @@ last 0PDmclT1CmN~--a8P0~0
  len= 20
 
 
-ID Separator=`` MinTimeLength=6 (default)
-first 0Vsccp-----00
- len= 13
-last 0Vsccp--a8P00
- len= 13
+ID Separator=`` ServerUniqueId=`` MinTimeLength=6 (default)
+first 0Vsccp-----0
+ len= 12
+last 0Vsccp--a8P0
+ len= 12
 
-NanoID Separator=`` MinNanoTimeLength=11 (default)
+NanoID Separator=`` ServerUniqueId=`` MinNanoTimeLength=11 (default)
 first 0PDmclT1CmN-----00
- len= 18
+ len= 17
 last 0PDmclT1CmN--a8P00
- len= 18
+ len= 17
+ 
+ 
+ID Separator=`` ServerUniqueId=`` MinCounterLength=0
+first 0Vsccp0
+ len= 7
+last 0Vsccpa8P0
+ len= 10
+
+NanoID Separator=`` ServerUniqueId=`` MinCounterLength=0
+first 0PDmclT1CmN0
+ len= 12
+last 0PDmclT1CmN~a8P0
+ len= 16
  
  
 ID MinCounterLength = 0
