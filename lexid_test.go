@@ -20,12 +20,14 @@ import (
 )
 
 func TestRecommendedMinLength(t *testing.T) {
-	L.Print(`recommended MinCounterLength`, lexid.MinCounterLength)
-	print(`recommended MinTimeLength`, S.EncodeCB63(lexid.Now.Unix(), 0))
-	print(`recommended MinNanoTimeLength`, S.EncodeCB63(lexid.Now.UnixNano(), 0))
+	L.Print(`recommended MinDateOffset`, lexid.Offset2020.Unix())
+	L.Print(`recommended MinNanoDateOffset`, lexid.Offset2020.UnixNano())
+	L.Print(`recommended/default MinCounterLength`, lexid.Config.MinCounterLength)
+	print(`recommended/default MinTimeLength`, S.EncodeCB63(lexid.Now.Unix(), 0))
+	print(`recommended/default MinNanoTimeLength`, S.EncodeCB63(lexid.Now.UnixNano(), 0))
 
 	timeOverflow := `zzzzzz~0~0`
-	seg, err := lexid.Parse(timeOverflow)
+	seg, err := lexid.Parse(timeOverflow, false)
 	assert.Nil(t, err)
 	L.Describe(seg)
 	print(`TimeLength=6 will overflow at`, time.Unix(seg.Time, 0).String())
@@ -33,6 +35,13 @@ func TestRecommendedMinLength(t *testing.T) {
 
 	L.Print(`MaxTime`, time.Unix(math.MaxInt64, 0))
 	L.Print(`MaxNanoTime`, time.Unix(0, math.MaxInt64))
+
+	lexid.Config.MinTimeLength = 0
+	lexid.Config.MinCounterLength = 0
+	lexid.Config.MinDateOffset = lexid.Offset2020.Unix()
+	print(`offset example`, lexid.ID())
+	lexid.Config.MinNanoDateOffset = lexid.Offset2020.UnixNano()
+	print(`offset nano example`, lexid.NanoID())
 }
 
 func BenchmarkKsuid(b *testing.B) {
@@ -86,9 +95,9 @@ func BenchmarkNanoid(b *testing.B) {
 }
 
 func BenchmarkLexIdNoLex(b *testing.B) {
-	lexid.Separator = ``
-	lexid.MinTimeLength = 0
-	lexid.MinCounterLength = 0
+	lexid.Config.Separator = ``
+	lexid.Config.MinTimeLength = 0
+	lexid.Config.MinCounterLength = 0
 	for z := 0; z < b.N; z++ {
 		res := lexid.ID()
 		_ = res
@@ -96,7 +105,7 @@ func BenchmarkLexIdNoLex(b *testing.B) {
 }
 
 func BenchmarkLexIdNoSep(b *testing.B) {
-	lexid.Separator = ``
+	lexid.Config.Separator = ``
 	for z := 0; z < b.N; z++ {
 		res := lexid.ID()
 		_ = res
@@ -126,6 +135,8 @@ const N = 1_000_000
 
 func TestLexiId(t *testing.T) {
 	m := map[string]bool{}
+	lexid.Config.MinTimeLength = 6
+	lexid.Config.MinCounterLength = 6
 	id := lexid.ID()
 	print(`first`, id)
 	for z := 0; z < N; z++ {
@@ -144,6 +155,8 @@ func TestLexiId(t *testing.T) {
 
 func TestLexiIdNano(t *testing.T) {
 	m := map[string]bool{}
+	lexid.Config.MinNanoTimeLength = 11
+	lexid.Config.MinCounterLength = 6
 	id := lexid.NanoID()
 	print(`first`, id)
 	for z := 0; z < N; z++ {
@@ -161,7 +174,7 @@ func TestLexiIdNano(t *testing.T) {
 }
 
 func TestOverflow(t *testing.T) {
-	lexid.AtomicCounter = math.MaxUint32 - N/2
+	lexid.Config.AtomicCounter = math.MaxUint32 - N/2
 	m := map[string]bool{}
 	id := lexid.ID()
 	print(`first`, id)
@@ -180,7 +193,7 @@ func TestOverflow(t *testing.T) {
 }
 
 func TestOverflowNano(t *testing.T) {
-	lexid.AtomicCounter = math.MaxUint32 - N/2
+	lexid.Config.AtomicCounter = math.MaxUint32 - N/2
 	m := map[string]bool{}
 	id := lexid.NanoID()
 	print(`first`, id)
@@ -238,16 +251,10 @@ func TestObjectNano(t *testing.T) {
 
 }
 
-func TestParse(t *testing.T) {
-	id := lexid.ID()
-	print(`id`, id)
-	seg, err := lexid.Parse(id)
-	assert.Nil(t, err)
-	L.Print(`Time`, time.Unix(seg.Time, 0))
+func printSeg(seg *lexid.Segments) {
+	L.Print(`Time`, seg.ToTime())
 	L.Print(`Counter`, seg.Counter)
-	assert.Equal(t, lexid.AtomicCounter, seg.Counter)
-	L.Print(`ServerID`, seg.ServerID)
-	assert.Equal(t, lexid.ServerUniqueId[1:], seg.ServerID)
+	L.Print(`Identity`, seg.Identity)
 }
 
 func TestParseObject(t *testing.T) {
@@ -255,82 +262,69 @@ func TestParseObject(t *testing.T) {
 	gen.AtomicCounter = 123
 	id := gen.ID()
 	print(`id`, id)
-	seg, err := gen.Parse(id)
+	seg, err := gen.Parse(id, false)
 	assert.Nil(t, err)
-	L.Print(`Time`, time.Unix(seg.Time, 0))
-	L.Print(`Counter`, seg.Counter)
 	assert.Equal(t, gen.AtomicCounter, seg.Counter)
-	L.Print(`ServerID`, seg.ServerID)
-	assert.Equal(t, gen.ServerUniqueId[1:], seg.ServerID)
+	assert.Equal(t, gen.Identity[1:], seg.Identity)
+	printSeg(seg)
 }
 
 func TestParseFixedNanoObject(t *testing.T) {
 	gen := lexid.NewGenerator(`1`)
 	gen.Separator = ``
 	gen.AtomicCounter = 123
-	gen.ServerUniqueId = `2`
+	gen.Identity = `2`
 	id := gen.NanoID()
 	print(`id`, id)
 	L.Describe(gen)
-	seg, err := gen.Parse(id)
+	seg, err := gen.Parse(id, true)
 	assert.Nil(t, err)
-	L.Print(`Time`, time.Unix(0, seg.Time))
-	L.Print(`Counter`, seg.Counter)
 	assert.Equal(t, gen.AtomicCounter, seg.Counter)
-	L.Print(`ServerID`, seg.ServerID)
-	assert.Equal(t, gen.ServerUniqueId, seg.ServerID)
-}
-
-func TestParseFixedNano(t *testing.T) {
-	defer func() {
-		// restore configuration
-		lexid.Separator = `~`
-		lexid.ServerUniqueId = `~0`
-	}()
-	lexid.Separator = ``
-	lexid.AtomicCounter = 123
-	lexid.ServerUniqueId = `2`
-	id := lexid.NanoID()
-	print(`id`, id)
-	seg, err := lexid.Parse(id)
-	assert.Nil(t, err)
-	L.Print(`Time`, time.Unix(0, seg.Time))
-	L.Print(`Counter`, seg.Counter)
-	assert.Equal(t, lexid.AtomicCounter, seg.Counter)
-	L.Print(`ServerID`, seg.ServerID)
-	assert.Equal(t, lexid.ServerUniqueId, seg.ServerID)
+	assert.Equal(t, gen.Identity, seg.Identity)
+	printSeg(seg)
 }
 
 func TestParseFixedObject(t *testing.T) {
 	gen := lexid.NewGenerator(`1`)
 	gen.Separator = ``
 	gen.AtomicCounter = 123
-	gen.ServerUniqueId = `2`
+	gen.Identity = `2`
 	id := gen.ID()
 	print(`id`, id)
-	seg, err := gen.Parse(id)
+	seg, err := gen.Parse(id, false)
 	assert.Nil(t, err)
-	L.Print(`Time`, time.Unix(seg.Time, 0))
 	assert.Equal(t, gen.AtomicCounter, seg.Counter)
-	L.Print(`ServerID`, seg.ServerID)
-	assert.Equal(t, gen.ServerUniqueId, seg.ServerID)
+	assert.Equal(t, gen.Identity, seg.Identity)
+	printSeg(seg)
 }
 
-func TestParseFixed(t *testing.T) {
-	defer func() {
-		// restore configuration
-		lexid.Separator = `~`
-		lexid.ServerUniqueId = `~0`
-	}()
-	lexid.Separator = ``
-	lexid.AtomicCounter = 123
-	lexid.ServerUniqueId = `2`
-	id := lexid.ID()
-	print(`id`, id)
-	seg, err := lexid.Parse(id)
-	assert.Nil(t, err)
-	L.Print(`Time`, time.Unix(seg.Time, 0))
-	assert.Equal(t, lexid.AtomicCounter, seg.Counter)
-	L.Print(`ServerID`, seg.ServerID)
-	assert.Equal(t, lexid.ServerUniqueId, seg.ServerID)
+func TestFrom(t *testing.T) {
+	lexid.Config.Reinit()
+	id := lexid.FromUnixCounterIdent(0, 0, `~A`)
+	assert.Equal(t, `------~------~A`, id)
+	id = lexid.FromUnixCounter(0, 0)
+	assert.Equal(t, `------~------~0`, id)
+	id = lexid.FromUnix(0)
+	assert.Equal(t, `------~-----0~0`, id)
+}
+
+func TestFromObject(t *testing.T) {
+	gen := lexid.NewGenerator(`~X`)
+	gen.MinTimeLength = 0
+	gen.MinCounterLength = 0
+	id := gen.FromUnixCounterIdent(0, 0, `~A`)
+	assert.Equal(t, `-~-~A`, id)
+	id = gen.FromUnixCounter(0, 0)
+	assert.Equal(t, `-~-~X`, id)
+	id = gen.FromUnix(0)
+	assert.Equal(t, `-~0~X`, id)
+
+	gen.Separator = ``
+	gen.Identity = ``
+	id = gen.FromUnixCounterIdent(0, 0, `Z`)
+	assert.Equal(t, `--Z`, id)
+	id = gen.FromUnixCounter(0, 0)
+	assert.Equal(t, `--`, id)
+	id = gen.FromUnix(0)
+	assert.Equal(t, `-1`, id)
 }

@@ -15,135 +15,184 @@ import (
  1. current second
  2. atomic increment
  3. server unique id
-need to set ServerUniqueId if you have multiple server
+need to set Identity if you have multiple server
 */
 
 var Now time.Time
 
-var AtomicCounter uint32
-var Separator = `~`
-var ServerUniqueId = `~0`
+var Config *Generator
 
-var MinCounterLength = len(S.EncodeCB63(math.MaxUint32, 0))
-var MinTimeLength = 0     // >=6
-var MinNanoTimeLength = 0 // >=11
-
-var defaultMinCounterLength = 6
-var defaultMinTimeLength = 6
-var defaultMinNanoTimeLength = 11
+var DefaultSeparator = `~`
+var DefaultMinCounterLength = 6
+var DefaultMinTimeLength = 6
+var DefaultMinNanoTimeLength = 11
+var DefaultMinDateOffset = int64(0)
+var DefaultMinNanoDateOffset = int64(0)
+var Offset2020 time.Time // MinDateOffset = Offset2020.Unix() or MinNanoDateOffset = Offset2020.UnixNano()
+var SeparatorIdentity = `~0`
 
 func init() {
 	Now = fastime.Now()
-	defaultMinCounterLength = len(S.EncodeCB63(math.MaxUint32, 0))
-	defaultMinTimeLength = len(S.EncodeCB63(time.Now().Unix(), 0))
-	defaultMinNanoTimeLength = len(S.EncodeCB63(time.Now().UnixNano(), 0))
 
-	MinTimeLength = defaultMinTimeLength
-	MinNanoTimeLength = defaultMinNanoTimeLength
+	DefaultMinCounterLength = len(S.EncodeCB63(math.MaxUint32, 0))
+	DefaultMinTimeLength = len(S.EncodeCB63(time.Now().Unix(), 0))
+	DefaultMinNanoTimeLength = len(S.EncodeCB63(time.Now().UnixNano(), 0))
+
+	Config = NewGenerator(SeparatorIdentity)
+
+	Offset2020 = time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC)
+
+	Config.MinTimeLength = DefaultMinTimeLength
+	Config.MinNanoTimeLength = DefaultMinNanoTimeLength
+	Config.MinDateOffset = DefaultMinDateOffset
+	Config.MinNanoDateOffset = DefaultMinNanoDateOffset
+}
+
+func Parse(id string, isNano bool) (*Segments, error) {
+	return Config.Parse(id, isNano)
+}
+
+func FromUnixCounterIdent(time int64, counter uint32, ident string) string {
+	return Config.FromUnixCounterIdent(time, counter, ident)
+}
+
+func FromUnixCounter(time int64, counter uint32) string {
+	return Config.FromUnixCounter(time, counter)
+}
+
+func FromUnix(time int64) string {
+	return Config.FromUnix(time)
+}
+
+func FromNanoCounterIdent(time int64, counter uint32, ident string) string {
+	return Config.FromNanoCounterIdent(time, counter, ident)
+}
+
+func FromNanoCounter(time int64, counter uint32) string {
+	return Config.FromNanoCounter(time, counter)
+}
+
+func FromNano(time int64) string {
+	return Config.FromNano(time)
 }
 
 // generate unique ID (second, smaller)
 func ID() string {
-	counter := atomic.AddUint32(&AtomicCounter, 1)
-	return S.EncodeCB63(Now.Unix(), MinTimeLength) + Separator + S.EncodeCB63(int64(counter), MinCounterLength) + ServerUniqueId
+	return Config.ID()
 }
 
 // generate unique ID (accurate)
 func NanoID() string {
-	counter := atomic.AddUint32(&AtomicCounter, 1)
-	return S.EncodeCB63(Now.UnixNano(), MinNanoTimeLength) + Separator + S.EncodeCB63(int64(counter), MinCounterLength) + ServerUniqueId
+	return Config.NanoID()
 }
 
 type Segments struct {
-	Time     int64
-	Counter  uint32
-	ServerID string
+	Time      int64
+	Counter   uint32
+	Identity  string
+	IsNano    bool
+	Generator *Generator
 }
 
-func Parse(id string) (*Segments, error) {
-	var segments []string
-	if Separator == `` {
-		// try parse as unixnano
-		start := MinNanoTimeLength
-		end := start + MinCounterLength
-		if len(id) <= end {
-			// try parse as unix
-			start = MinTimeLength
-			end = start + MinCounterLength
-			if len(id) <= end {
-				return nil, fmt.Errorf(`invalid lexid length: %s %d < %d+%d`, id, len(id), MinTimeLength, MinCounterLength)
-			}
-		}
-		segments = []string{
-			id[:start],
-			id[start:end],
-			id[end:],
-		}
-	} else {
-		segments = strings.Split(id, Separator)
-		if len(segments) != 3 {
+func (s *Segments) ToTime() time.Time {
+	if s.IsNano {
+		return time.Unix(0, s.Time)
+	}
+	return time.Unix(s.Time, 0)
+}
 
-			return nil, fmt.Errorf(`invalid lexid or separator: %#v %s`, segments, Separator)
-		}
+func (s *Segments) ToID() string {
+	if s.Generator == nil {
+		s.Generator = Config
 	}
-	timePart, timeOk := S.DecodeCB63(segments[0])
-	ctrPart, ctrOk := S.DecodeCB63(segments[1])
-	var err error
-	res := &Segments{
-		Time:     timePart,
-		Counter:  uint32(ctrPart),
-		ServerID: segments[2],
+	if s.IsNano {
+		return s.Generator.FromNanoCounterIdent(s.Time, s.Counter, s.Identity)
 	}
-	if !timeOk {
-		err = fmt.Errorf(`unable to parse time segment: %#v`, segments[0])
-	} else if !ctrOk {
-		err = fmt.Errorf(`unable to parse counter segment: %#v`, segments[1])
-	}
-	return res, err
+	return s.Generator.FromUnixCounterIdent(s.Time, s.Counter, s.Identity)
 }
 
 // object-oriented version
 type Generator struct {
 	AtomicCounter     uint32
 	Separator         string
-	ServerUniqueId    string
+	Identity          string
 	MinCounterLength  int
 	MinTimeLength     int
 	MinNanoTimeLength int
+	MinDateOffset     int64
+	MinNanoDateOffset int64
 }
 
-func NewGenerator(serverUniqueId string) *Generator {
+func NewGenerator(uniqStr string) *Generator {
 	return &Generator{
 		AtomicCounter:     0,
-		Separator:         Separator,
-		ServerUniqueId:    serverUniqueId,
-		MinCounterLength:  defaultMinCounterLength,
-		MinTimeLength:     defaultMinTimeLength,
-		MinNanoTimeLength: defaultMinNanoTimeLength,
+		Separator:         DefaultSeparator,
+		Identity:          uniqStr,
+		MinCounterLength:  DefaultMinCounterLength,
+		MinTimeLength:     DefaultMinTimeLength,
+		MinNanoTimeLength: DefaultMinNanoTimeLength,
+		MinDateOffset:     DefaultMinDateOffset,
+		MinNanoDateOffset: DefaultMinNanoDateOffset,
 	}
+}
+
+func (gen *Generator) Reinit() {
+	gen.AtomicCounter = 0
+	gen.Separator = DefaultSeparator
+	gen.MinCounterLength = DefaultMinCounterLength
+	gen.MinTimeLength = DefaultMinTimeLength         // >=6
+	gen.MinNanoTimeLength = DefaultMinNanoTimeLength // >=11
+	gen.MinDateOffset = DefaultMinDateOffset
+	gen.MinNanoDateOffset = DefaultMinNanoDateOffset
 }
 
 func (gen *Generator) ID() string {
 	counter := atomic.AddUint32(&gen.AtomicCounter, 1)
-	return S.EncodeCB63(Now.Unix(), gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.ServerUniqueId
+	return S.EncodeCB63(Now.Unix()-gen.MinDateOffset, gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.Identity
 }
 
 func (gen *Generator) NanoID() string {
 	counter := atomic.AddUint32(&gen.AtomicCounter, 1)
-	return S.EncodeCB63(Now.UnixNano(), gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.ServerUniqueId
+	return S.EncodeCB63(Now.UnixNano()-gen.MinNanoDateOffset, gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.Identity
 }
 
-func (gen *Generator) Parse(id string) (*Segments, error) {
+func (gen *Generator) FromUnixCounterIdent(time int64, counter uint32, ident string) string {
+	return S.EncodeCB63(time-gen.MinDateOffset, gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + ident
+}
+
+func (gen *Generator) FromUnixCounter(time int64, counter uint32) string {
+	return S.EncodeCB63(time-gen.MinDateOffset, gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.Identity
+}
+
+func (gen *Generator) FromUnix(time int64) string {
+	counter := atomic.AddUint32(&gen.AtomicCounter, 1)
+	return S.EncodeCB63(time-gen.MinDateOffset, gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.Identity
+}
+
+func (gen *Generator) FromNanoCounterIdent(time int64, counter uint32, ident string) string {
+	return S.EncodeCB63(time-gen.MinNanoDateOffset, gen.MinNanoTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + ident
+}
+
+func (gen *Generator) FromNanoCounter(time int64, counter uint32) string {
+	return S.EncodeCB63(time-gen.MinNanoDateOffset, gen.MinNanoTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.Identity
+}
+
+func (gen *Generator) FromNano(time int64) string {
+	counter := atomic.AddUint32(&gen.AtomicCounter, 1)
+	return S.EncodeCB63(time-gen.MinNanoDateOffset, gen.MinNanoTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.Identity
+}
+
+func (gen *Generator) Parse(id string, isNano bool) (*Segments, error) {
 	var segments []string
 	if gen.Separator == `` {
-		// try parse as unix
+		// try parse as unixnano
 		start := gen.MinNanoTimeLength
 		end := start + gen.MinCounterLength
-		if len(id) <= end {
-			// try parse as unixnano
+		if len(id) < end {
+			// try parse as unix
 			start = gen.MinTimeLength
 			end = start + gen.MinCounterLength
-			if len(id) <= end {
+			if len(id) < end {
 				return nil, fmt.Errorf(`invalid lexid length: %s %d < %d+%d`, id, len(id), gen.MinTimeLength, gen.MinCounterLength)
 			}
 		}
@@ -161,10 +210,16 @@ func (gen *Generator) Parse(id string) (*Segments, error) {
 	timePart, timeOk := S.DecodeCB63(segments[0])
 	ctrPart, ctrOk := S.DecodeCB63(segments[1])
 	var err error
+	if isNano {
+		timePart += gen.MinNanoDateOffset
+	} else {
+		timePart += gen.MinDateOffset
+	}
 	res := &Segments{
 		Time:     timePart,
 		Counter:  uint32(ctrPart),
-		ServerID: segments[2],
+		Identity: segments[2],
+		IsNano:   isNano,
 	}
 	if !timeOk {
 		err = fmt.Errorf(`unable to parse time segment: %#v`, segments[0])
