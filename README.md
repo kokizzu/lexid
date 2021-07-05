@@ -86,6 +86,8 @@ func main() {
 this shows minimum length and length after 1-10 million generated ID with specific configuration (7-15 characters for `ID`, 10-20 characters for `NanoID`)
 
 ```
+Default config (fixed length):
+
 ID 
 first 0Vsccp~-----0~0
  len= 15
@@ -97,7 +99,9 @@ first 0PDmclT1CmN~-----0~0
  len= 20
 last 0PDmclT1CmN~--a8P0~0
  len= 20
-
+ 
+ 
+Separatorless config and without ServerUniqueID:
 
 ID Separator=`` ServerUniqueId=`` MinTimeLength=6 (default)
 first 0Vsccp-----0
@@ -111,31 +115,35 @@ first 0PDmclT1CmN-----0
 last 0PDmclT1CmN--a8P0
  len= 17
  
- 
-ID Separator=`` ServerUniqueId=`` MinCounterLength=0 -- may duplicate
-first 0Vsccp0
- len= 7
-last 0Vsccpa8P0
- len= 10
 
-NanoID Separator=`` ServerUniqueId=`` MinCounterLength=0 -- may duplicate
-first 0PDmclT1CmN0
- len= 12
-last 0PDmclT1CmN~a8P0
- len= 16
+Config with variable length (not lexicographically sortable):
  
- 
-ID MinCounterLength = 0
+ID MinCounterLength=0
 first 0Vsc0a~0~0 
  len= 10
 last  0Vsc0a~2o80~0 
  len= 13
 
-NanoID MinCounterLength = 0
+NanoID MinCounterLength=0
 first 0PDm7hn0KSs~0~0
  len= 15
 last 0PDm7hn0KSs~2o80~0
  len= 18 
+ 
+ 
+Config that allows duplicate:
+
+ID Separator=`` ServerUniqueId=`` MinCounterLength=0
+first 0Vsccp0
+ len= 7
+last 0Vsccpa8P0
+ len= 10
+
+NanoID Separator=`` ServerUniqueId=`` MinCounterLength=0
+first 0PDmclT1CmN0
+ len= 12
+last 0PDmclT1CmN~a8P0
+ len= 16
 ```
 
 ## Gotchas
@@ -158,7 +166,7 @@ it will impossible to parse (to get time, counter, and server id) if:
 
 ## Difference with XID
 
-- have locks, so by default only utilize single core performance (unless using the object-oriented version to spawn multiple instance with different server/process/thread id)
+- have locks, so by default can only utilize single core (unless using the object-oriented version to spawn multiple instance with different server/process/thread id)
 - 256x more uniqueness generated id per sec guaranteed: 4 billion vs 16 million
 - configurable (length, separator, server/process/thread id)
 - same or less length for string representation (depends on your configuration)
