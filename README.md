@@ -15,6 +15,16 @@ Min length (ID without separator and server ID):
 Max length (NanoID with separator and server ID): 
   11+6+N+2 = 19+N bytes
 ``` 
+|  Type  | Min[Nano]<br/>Time<br/>Length | Min<br/>Counter<br/>Length | Separator | Byte use<br/>without<br/>ServerID | Ordered | Unique |
+|:------:|:---------------------:|:------------------:|:---------:|:--------------------------:|:-------:|:------:|
+| ID     |                     6 |                  6 |     ~     |             14             |    Y    |    Y   |
+| ID     |                     0 |                  0 |     ~     |            9-14            |    N    |    Y   |
+| ID     |                     6 |                  6 |           |             12             |    Y    |    Y   |
+| ID     |                     0 |                  0 |           |            7-12            |    N    |    N   |
+| NanoID |                    11 |                  6 |     ~     |             19             |    Y    |    Y   |
+| NanoID |                     0 |                  0 |     ~     |            14-19           |    N    |    Y   |
+| NanoID |                    11 |                  6 |           |             17             |    Y    |    Y   |
+| NanoID |                     0 |                  0 |           |            12-17           |    N    |    N   |
 
 Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/master/S), URL-safe encoding.
 
@@ -172,3 +182,6 @@ it will impossible to parse (to get time, counter, and server id) if:
 - same or less length for string representation (depends on your configuration)
 - EncodeCB63 (base64-variant) vs base32 (20% space usage)
 - defaults to string representation (12 to 19+N bytes) vs have 12-bytes binary representation
+
+## Further Optimization
+- add `MinDate` (eg. `20xx-01-01 00:00:00`) to subtract the generated `Time` segment so it would use less space.
