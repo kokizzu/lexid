@@ -50,17 +50,17 @@ Max length (NanoID without separator and with server identity):
 
 ```
 cpu: AMD Ryzen 3 3100 4-Core Processor    
-BenchmarkShortuuid-8       140167     8733 ns/op
-BenchmarkKsuid-8           679804     1570 ns/op
-BenchmarkNanoid-8          777684     1524 ns/op
-BenchmarkUuid-8            869036     1345 ns/op
-BenchmarkTime-8           1653766      716.2 ns/op
-BenchmarkSnowflake-8      4908016      246.1 ns/op
-BenchmarkLexIdNano-8      9147108      122.6 ns/op
-BenchmarkLexIdNoLex-8    10405467      117.7 ns/op
-BenchmarkLexIdNoSep-8    10093414      115.6 ns/op
-BenchmarkLexId-8         10154136      114.3 ns/op
-BenchmarkXid-8           13861094       85.89 ns/op
+BenchmarkShortuuid-8      118908      8572 ns/op
+BenchmarkKsuid-8          760924      1493 ns/op
+BenchmarkNanoid-8         759548      1485 ns/op
+BenchmarkUuid-8           935152      1304 ns/op
+BenchmarkTime-8          1690483       720.0 ns/op
+BenchmarkSnowflake-8     4911249       244.7 ns/op
+BenchmarkLexIdNano-8     8483720       138.8 ns/op
+BenchmarkLexIdNoSep-8   10396551       116.3 ns/op
+BenchmarkLexIdNoLex-8   10590300       115.1 ns/op
+BenchmarkLexId-8         9991906       114.9 ns/op
+BenchmarkXid-8          13754178        86.02 ns/op
 PASS
 ```
 
@@ -211,13 +211,13 @@ example 1dGr84ixhV1
 ## Gotchas
 
 it might not lexicographically ordered if:
-- the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if ordering doesn't matter if the event happened on the same second/nanodescond).
+- the `AtomicCounter` is overflowed on the exact same second/nanosecond, can be happening when your processor able to call `ID()` function more than 4 billion (`MaxUint32`=`4,294,967,295`) times per second.
 - you change `Separator` to other character that have lower ASCII/UTF-8 encoding value.
 - you set `Min*Length` less than recommended value, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`.
 - the `time` segment already pass the `MinTimeLength`, earliest will happen at year 4147.
 
 it might duplicate if:
-- your processor so powerful, that it can call the function above faster than 4 billion (`MaxUint32`=`4,294,967,295`) per second, there's no workaround for this.
+- your processor so powerful, that it can call the function `ID()` faster than 4 billion times per second, workaround: use `NanoID()`.
 - you set the `AtomicCounter` multiple time on the same second/nanosecond (eg. to a number lower than current counter).
 - using same/shared `Identity` on different server/process/thread.
 - unsynchronized time on same server.

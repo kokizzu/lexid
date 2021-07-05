@@ -15,10 +15,12 @@ import (
  1. current second
  2. atomic increment
  3. server unique id
-need to set Identity if you have multiple server
+need to set Identity if you have multiple server/instance
 */
 
-var Now time.Time
+var Now *fastime.Fastime
+var lastSec int64
+var incNano int64
 
 var Config *Generator
 
@@ -32,7 +34,7 @@ var Offset2020 time.Time // MinDateOffset = Offset2020.Unix() or MinNanoDateOffs
 var SeparatorIdentity = `~0`
 
 func init() {
-	Now = fastime.Now()
+	Now = fastime.New()
 
 	DefaultMinCounterLength = len(S.EncodeCB63(math.MaxUint32, 0))
 	DefaultMinTimeLength = len(S.EncodeCB63(time.Now().Unix(), 0))
@@ -147,13 +149,22 @@ func (gen *Generator) Reinit() {
 }
 
 func (gen *Generator) ID() string {
+	now := Now.UnixNow()
 	counter := atomic.AddUint32(&gen.AtomicCounter, 1)
-	return S.EncodeCB63(Now.Unix()-gen.MinDateOffset, gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.Identity
+	if now != lastSec { // reset to 0 if not the same second
+		atomic.SwapInt64(&lastSec, now)
+		atomic.SwapUint32(&gen.AtomicCounter, 0) // ignore old value
+		counter = atomic.AddUint32(&gen.AtomicCounter, 1)
+	}
+	return S.EncodeCB63(now-gen.MinDateOffset, gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.Identity
 }
 
 func (gen *Generator) NanoID() string {
 	counter := atomic.AddUint32(&gen.AtomicCounter, 1)
-	return S.EncodeCB63(Now.UnixNano()-gen.MinNanoDateOffset, gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.Identity
+	if counter == 0 { // add 1 nanosecond everytime generating 4 million IDs
+		atomic.AddInt64(&incNano, 1)
+	}
+	return S.EncodeCB63(Now.UnixNanoNow()+incNano-gen.MinNanoDateOffset, gen.MinTimeLength) + gen.Separator + S.EncodeCB63(int64(counter), gen.MinCounterLength) + gen.Identity
 }
 
 func (gen *Generator) FromUnixCounterIdent(time int64, counter uint32, ident string) string {

@@ -23,8 +23,8 @@ func ExampleRecommendedMinLength() {
 	L.Print(`recommended MinDateOffset`, lexid.Offset2020.Unix())
 	L.Print(`recommended MinNanoDateOffset`, lexid.Offset2020.UnixNano())
 	L.Print(`recommended/default MinCounterLength`, lexid.Config.MinCounterLength)
-	print(`recommended/default MinTimeLength`, S.EncodeCB63(lexid.Now.Unix(), 0))
-	print(`recommended/default MinNanoTimeLength`, S.EncodeCB63(lexid.Now.UnixNano(), 0))
+	print(`recommended/default MinTimeLength`, S.EncodeCB63(lexid.Now.UnixNow(), 0))
+	print(`recommended/default MinNanoTimeLength`, S.EncodeCB63(lexid.Now.UnixNanoNow(), 0))
 
 	timeOverflow := `zzzzzz~0~0`
 	seg, err := lexid.Parse(timeOverflow, false)
@@ -94,6 +94,17 @@ func BenchmarkLexIdNano(b *testing.B) {
 	}
 }
 
+// without orderable/sortable property
+func BenchmarkLexIdNoLex(b *testing.B) {
+	lexid.Config.Separator = ``
+	lexid.Config.MinTimeLength = 0
+	lexid.Config.MinCounterLength = 0
+	for z := 0; z < b.N; z++ {
+		res := lexid.ID()
+		_ = res
+	}
+}
+
 func BenchmarkLexId(b *testing.B) {
 	for z := 0; z < b.N; z++ {
 		res := lexid.ID()
@@ -104,17 +115,6 @@ func BenchmarkLexId(b *testing.B) {
 // without separator
 func BenchmarkLexIdNoSep(b *testing.B) {
 	lexid.Config.Separator = ``
-	for z := 0; z < b.N; z++ {
-		res := lexid.ID()
-		_ = res
-	}
-}
-
-// without orderable/sortable property
-func BenchmarkLexIdNoLex(b *testing.B) {
-	lexid.Config.Separator = ``
-	lexid.Config.MinTimeLength = 0
-	lexid.Config.MinCounterLength = 0
 	for z := 0; z < b.N; z++ {
 		res := lexid.ID()
 		_ = res
@@ -145,7 +145,7 @@ func TestLexiId(t *testing.T) {
 		past := id
 		id = lexid.ID()
 		if past >= id {
-			t.Errorf(`past should be lower or equal: %s >= %s`, past, id)
+			t.Fatalf(`past should be lower: %s >= %s`, past, id)
 		}
 		if m[id] {
 			panic(`duplicate lexid`)
@@ -165,7 +165,7 @@ func TestLexiIdNano(t *testing.T) {
 		past := id
 		id = lexid.NanoID()
 		if past >= id {
-			t.Errorf(`past should be lower or equal: %s >= %s`, past, id)
+			t.Fatalf(`past should be lower: %s >= %s`, past, id)
 		}
 		if m[id] {
 			panic(`duplicate nano lexid`)
@@ -176,7 +176,8 @@ func TestLexiIdNano(t *testing.T) {
 }
 
 func TestOverflow(t *testing.T) {
-	lexid.Config.AtomicCounter = math.MaxUint32 - N/2
+	const NFast = 2 * 10_000_000 // for processor that could calls 10m times
+	lexid.Config.AtomicCounter = math.MaxUint32 - NFast/2
 	m := map[string]bool{}
 	id := lexid.ID()
 	print(`first`, id)
@@ -184,7 +185,7 @@ func TestOverflow(t *testing.T) {
 		past := id
 		id = lexid.ID()
 		if past >= id {
-			t.Logf(`past should be lower or equal: %s >= %s`, past, id)
+			t.Fatalf(`past should be lower: %s >= %s`, past, id)
 		}
 		if m[id] {
 			panic(`duplicate nano lexid`)
@@ -203,7 +204,7 @@ func TestOverflowNano(t *testing.T) {
 		past := id
 		id = lexid.NanoID()
 		if past >= id {
-			t.Logf(`past should be lower or equal: %s >= %s`, past, id)
+			t.Fatalf(`past should be lower: %s >= %s`, past, id)
 		}
 		if m[id] {
 			panic(`duplicate nano lexid`)
@@ -222,7 +223,7 @@ func TestObject(t *testing.T) {
 		past := id
 		id = gen.ID()
 		if past >= id {
-			t.Errorf(`past should be lower or equal: %s >= %s`, past, id)
+			t.Fatalf(`past should be lower: %s >= %s`, past, id)
 		}
 		if m[id] {
 			panic(`duplicate lexid`)
@@ -242,7 +243,7 @@ func TestObjectNano(t *testing.T) {
 		past := id
 		id = gen.NanoID()
 		if past >= id {
-			t.Errorf(`past should be lower or equal: %s >= %s`, past, id)
+			t.Fatalf(`past should be lower: %s >= %s`, past, id)
 		}
 		if m[id] {
 			panic(`duplicate lexid`)
