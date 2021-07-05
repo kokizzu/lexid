@@ -4,18 +4,59 @@ import (
 	"fmt"
 	"math"
 	"testing"
+	"time"
 
+	"github.com/kokizzu/gotro/I"
 	"github.com/kokizzu/gotro/S"
 	"github.com/kokizzu/lexid"
+	"github.com/lithammer/shortuuid/v3"
+	"github.com/segmentio/ksuid"
 
+	"github.com/godruoyi/go-snowflake"
 	"github.com/google/uuid"
 	"github.com/kokizzu/gotro/L"
 	"github.com/matoous/go-nanoid/v2"
+	"github.com/rs/xid"
 )
+
+func BenchmarkKsuid(b *testing.B) {
+	for z := 0; z < b.N; z++ {
+		res := ksuid.New().String()
+		_ = res
+	}
+}
+
+func BenchmarkTime(b *testing.B) {
+	for z := 0; z < b.N; z++ {
+		res := time.Now().String()
+		_ = res
+	}
+}
+
+func BenchmarkShortuuid(b *testing.B) {
+	for z := 0; z < b.N; z++ {
+		res := shortuuid.New()
+		_ = res
+	}
+}
+
+func BenchmarkXid(b *testing.B) {
+	for z := 0; z < b.N; z++ {
+		res := xid.New().String()
+		_ = res
+	}
+}
+
+func BenchmarkSnowflake(b *testing.B) {
+	for z := 0; z < b.N; z++ {
+		res := I.UToS(snowflake.ID())
+		_ = res
+	}
+}
 
 func BenchmarkUuid(b *testing.B) {
 	for z := 0; z < b.N; z++ {
-		res := uuid.New()
+		res := uuid.New().String()
 		_ = res
 	}
 }
@@ -170,4 +211,26 @@ func TestObjectNano(t *testing.T) {
 	}
 	print(`last`, id)
 
+}
+
+func TestParse(t *testing.T) {
+	id := lexid.ID()
+	print(`id`, id)
+	seg, err := lexid.Parse(id)
+	L.IsError(err, `failed parse id`)
+	L.Print(`Time`, time.Unix(seg.Time, 0))
+	L.Print(`Counter`, seg.Counter)
+	L.Print(`ServerID`, seg.ServerID)
+}
+
+func TestParseOO(t *testing.T) {
+	gen := lexid.NewGenerator(`~1`)
+	gen.AtomicCounter = 123
+	id := gen.ID()
+	print(`id`, id)
+	seg, err := gen.Parse(id)
+	L.IsError(err, `failed parse id`)
+	L.Print(`Time`, time.Unix(seg.Time, 0))
+	L.Print(`Counter`, seg.Counter)
+	L.Print(`ServerID`, seg.ServerID)
 }
