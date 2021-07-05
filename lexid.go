@@ -50,9 +50,23 @@ type Segments struct {
 }
 
 func Parse(id string) (*Segments, error) {
-	segments := strings.Split(id, Separator)
-	if len(segments) != 3 {
-		return nil, fmt.Errorf(`invalid lexid or separator: %#v %s`, segments, Separator)
+	var segments []string
+	if Separator == `` {
+		end := MinTimeLength + MinCounterLength
+		if len(id) < end {
+			return nil, fmt.Errorf(`invalid lexid length: %s %d < %d+%d`, id, len(id), MinTimeLength, MinCounterLength)
+		}
+		segments = []string{
+			id[:MinTimeLength],
+			id[MinTimeLength:end],
+			id[end:],
+		}
+	} else {
+		segments = strings.Split(id, Separator)
+		if len(segments) != 3 {
+
+			return nil, fmt.Errorf(`invalid lexid or separator: %#v %s`, segments, Separator)
+		}
 	}
 	timePart, timeOk := S.DecodeCB63(segments[0])
 	ctrPart, ctrOk := S.DecodeCB63(segments[1])
@@ -102,9 +116,22 @@ func (gen *Generator) NanoID() string {
 }
 
 func (gen *Generator) Parse(id string) (*Segments, error) {
-	segments := strings.Split(id, gen.Separator)
-	if len(segments) != 3 {
-		return nil, fmt.Errorf(`invalid lexid or separator: %#v %s`, segments, gen.Separator)
+	var segments []string
+	if gen.Separator == `` {
+		end := gen.MinTimeLength + gen.MinCounterLength
+		if len(id) < end {
+			return nil, fmt.Errorf(`invalid lexid length: %s %d < %d+%d`, id, len(id), gen.MinTimeLength, gen.MinCounterLength)
+		}
+		segments = []string{
+			id[:gen.MinTimeLength],
+			id[gen.MinTimeLength:end],
+			id[end:],
+		}
+	} else {
+		segments = strings.Split(id, gen.Separator)
+		if len(segments) != 3 {
+			return nil, fmt.Errorf(`invalid lexid or separator: %#v %s`, segments, gen.Separator)
+		}
 	}
 	timePart, timeOk := S.DecodeCB63(segments[0])
 	ctrPart, ctrOk := S.DecodeCB63(segments[1])

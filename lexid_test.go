@@ -234,3 +234,40 @@ func TestParseOO(t *testing.T) {
 	L.Print(`Counter`, seg.Counter)
 	L.Print(`ServerID`, seg.ServerID)
 }
+
+func TestParseFixedOO(t *testing.T) {
+	gen := lexid.NewGenerator(`1`)
+	gen.Separator = ``
+	gen.AtomicCounter = 123
+	gen.ServerUniqueId = `2`
+	L.Print(`MaxTime`, time.Unix(0, math.MaxInt64))
+	gen.MinTimeLength = len(S.EncodeCB63(math.MaxInt64, 0))
+	id := gen.NanoID()
+	print(`id`, id)
+	seg, err := gen.Parse(id)
+	L.IsError(err, `failed parse id`)
+	L.Print(`Time`, time.Unix(0, seg.Time))
+	L.Print(`Counter`, seg.Counter)
+	L.Print(`ServerID`, seg.ServerID)
+}
+
+func TestParseFixed(t *testing.T) {
+	defer func() {
+		// restore configuration
+		lexid.Separator = `~`
+		lexid.MinTimeLength = 0
+		lexid.ServerUniqueId = `~0`
+	}()
+	lexid.Separator = ``
+	lexid.AtomicCounter = 123
+	lexid.ServerUniqueId = `2`
+	L.Print(`MaxTime`, time.Unix(0, math.MaxInt64))
+	lexid.MinTimeLength = len(S.EncodeCB63(math.MaxInt64, 0))
+	id := lexid.NanoID()
+	print(`id`, id)
+	seg, err := lexid.Parse(id)
+	L.IsError(err, `failed parse id`)
+	L.Print(`Time`, time.Unix(0, seg.Time))
+	L.Print(`Counter`, seg.Counter)
+	L.Print(`ServerID`, seg.ServerID)
+}
