@@ -28,6 +28,8 @@ Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/m
 | NanoID | 1577836800<br>000000000       | 0                             | 0                          | ~         | 12                                | N       | Y      |
 | NanoID | 1577836800<br>000000000       | 0                             | 0                          |           | 11                                | N       | N      |
 
+Note: `1577836800` = unix timestamp of `2021-01-01 00:00:00`
+
 Uniqueness configuration (when `Separator` or `Min*TimeLength` set, this is the default)
 ```
 Min length (ID with separator and server identity): 
