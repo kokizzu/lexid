@@ -40,7 +40,7 @@ PASS
 import "github.com/kokizzu/lexid"
 
 func main() {
-	// set if multiserver
+	// set if multiserver, can be empty if not multi-server
 	lexid.UniqueServerId = `~1`
 	
 	// optional starting counter
