@@ -10,8 +10,10 @@ Consist of 3 segment:
 - 2 separator character (default: `~`, can be removed, 2x 0-1 character)
 
 ```
-Min length (ID without separator and server ID): 6+6+0+0 = 12 bytes
-Max length (NanoID with separator and server ID): 11+6+N+2 = 19+N bytes
+Min length (ID without separator and server ID): 
+  6+6+0+0 = 12 bytes
+Max length (NanoID with separator and server ID): 
+  11+6+N+2 = 19+N bytes
 ``` 
 
 Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/master/S), URL-safe encoding.
@@ -97,13 +99,13 @@ last 0PDmclT1CmN~--a8P0~0
  len= 20
 
 
-ID Separator=`` MinTimeLength=6
+ID Separator=`` MinTimeLength=6 (default)
 first 0Vsccp-----00
  len= 13
 last 0Vsccp--a8P00
  len= 13
 
-NanoID Separator=`` MinNanoTimeLength=11
+NanoID Separator=`` MinNanoTimeLength=11 (default)
 first 0PDmclT1CmN-----00
  len= 18
 last 0PDmclT1CmN--a8P00
