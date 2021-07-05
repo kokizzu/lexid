@@ -23,14 +23,23 @@ var Now time.Time
 var AtomicCounter uint32
 var Separator = `~`
 var ServerUniqueId = `~0`
+
 var MinCounterLength = len(S.EncodeCB63(math.MaxUint32, 0))
-var MinTimeLength = 0     // >=6 for 2021-07-06
-var MinNanoTimeLength = 0 // >=11 for 2021-07-06
+var MinTimeLength = 0     // >=6
+var MinNanoTimeLength = 0 // >=11
+
+var defaultMinCounterLength = 6
+var defaultMinTimeLength = 6
+var defaultMinNanoTimeLength = 11
 
 func init() {
 	Now = fastime.Now()
-	MinTimeLength = len(S.EncodeCB63(time.Now().Unix(), 0))
-	MinNanoTimeLength = len(S.EncodeCB63(time.Now().UnixNano(), 0))
+	defaultMinCounterLength = len(S.EncodeCB63(math.MaxUint32, 0))
+	defaultMinTimeLength = len(S.EncodeCB63(time.Now().Unix(), 0))
+	defaultMinNanoTimeLength = len(S.EncodeCB63(time.Now().UnixNano(), 0))
+
+	MinTimeLength = defaultMinTimeLength
+	MinNanoTimeLength = defaultMinNanoTimeLength
 }
 
 // generate unique ID (second, smaller)
@@ -108,9 +117,9 @@ func NewGenerator(serverUniqueId string) *Generator {
 		AtomicCounter:     0,
 		Separator:         Separator,
 		ServerUniqueId:    serverUniqueId,
-		MinCounterLength:  len(S.EncodeCB63(math.MaxUint32, 1)),
-		MinTimeLength:     MinTimeLength,
-		MinNanoTimeLength: MinNanoTimeLength,
+		MinCounterLength:  defaultMinCounterLength,
+		MinTimeLength:     defaultMinTimeLength,
+		MinNanoTimeLength: defaultMinNanoTimeLength,
 	}
 }
 

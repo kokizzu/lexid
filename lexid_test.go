@@ -19,6 +19,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestRecommendedMinLength(t *testing.T) {
+	L.Print(`recommended MinCounterLength`, lexid.MinCounterLength)
+	print(`recommended MinTimeLength`, S.EncodeCB63(lexid.Now.Unix(), 0))
+	print(`recommended MinNanoTimeLength`, S.EncodeCB63(lexid.Now.UnixNano(), 0))
+
+	timeOverflow := `zzzzzz~0~0`
+	seg, err := lexid.Parse(timeOverflow)
+	assert.Nil(t, err)
+	L.Describe(seg)
+	print(`TimeLength=6 will overflow at`, time.Unix(seg.Time, 0).String())
+	// UnixNano will never overflow
+
+	L.Print(`MaxTime`, time.Unix(math.MaxInt64, 0))
+	L.Print(`MaxNanoTime`, time.Unix(0, math.MaxInt64))
+}
+
 func BenchmarkKsuid(b *testing.B) {
 	for z := 0; z < b.N; z++ {
 		res := ksuid.New().String()
@@ -64,7 +80,7 @@ func BenchmarkUuid(b *testing.B) {
 func BenchmarkNanoid(b *testing.B) {
 	for z := 0; z < b.N; z++ {
 		res, err := gonanoid.New()
-		L.PanicIf(err, `error generating nanoid`)
+		assert.Nil(b, err)
 		_ = res
 	}
 }
@@ -164,11 +180,6 @@ func TestOverflowNano(t *testing.T) {
 	print(`last`, id)
 }
 
-func TestRecommendedMinTime(t *testing.T) {
-	print(`recommended MinTimeLength`, S.EncodeCB63(lexid.Now.Unix(), 0))
-	print(`recommended MinNanoTimeLength`, S.EncodeCB63(lexid.Now.UnixNano(), 0))
-}
-
 func TestObject(t *testing.T) {
 	m := map[string]bool{}
 	gen := lexid.NewGenerator(`~1`)
@@ -213,7 +224,7 @@ func TestParse(t *testing.T) {
 	id := lexid.ID()
 	print(`id`, id)
 	seg, err := lexid.Parse(id)
-	L.IsError(err, `failed parse id`)
+	assert.Nil(t, err)
 	L.Print(`Time`, time.Unix(seg.Time, 0))
 	L.Print(`Counter`, seg.Counter)
 	assert.Equal(t, lexid.AtomicCounter, seg.Counter)
@@ -221,13 +232,13 @@ func TestParse(t *testing.T) {
 	assert.Equal(t, lexid.ServerUniqueId[1:], seg.ServerID)
 }
 
-func TestParseOO(t *testing.T) {
+func TestParseObject(t *testing.T) {
 	gen := lexid.NewGenerator(`~1`)
 	gen.AtomicCounter = 123
 	id := gen.ID()
 	print(`id`, id)
 	seg, err := gen.Parse(id)
-	L.IsError(err, `failed parse id`)
+	assert.Nil(t, err)
 	L.Print(`Time`, time.Unix(seg.Time, 0))
 	L.Print(`Counter`, seg.Counter)
 	assert.Equal(t, gen.AtomicCounter, seg.Counter)
@@ -235,17 +246,16 @@ func TestParseOO(t *testing.T) {
 	assert.Equal(t, gen.ServerUniqueId[1:], seg.ServerID)
 }
 
-func TestParseFixedNanoOO(t *testing.T) {
+func TestParseFixedNanoObject(t *testing.T) {
 	gen := lexid.NewGenerator(`1`)
 	gen.Separator = ``
 	gen.AtomicCounter = 123
 	gen.ServerUniqueId = `2`
-	L.Print(`MaxTime`, time.Unix(0, math.MaxInt64))
 	id := gen.NanoID()
 	print(`id`, id)
 	L.Describe(gen)
 	seg, err := gen.Parse(id)
-	L.IsError(err, `failed parse id`)
+	assert.Nil(t, err)
 	L.Print(`Time`, time.Unix(0, seg.Time))
 	L.Print(`Counter`, seg.Counter)
 	assert.Equal(t, gen.AtomicCounter, seg.Counter)
@@ -262,11 +272,10 @@ func TestParseFixedNano(t *testing.T) {
 	lexid.Separator = ``
 	lexid.AtomicCounter = 123
 	lexid.ServerUniqueId = `2`
-	L.Print(`MaxTime`, time.Unix(0, math.MaxInt64))
 	id := lexid.NanoID()
 	print(`id`, id)
 	seg, err := lexid.Parse(id)
-	L.IsError(err, `failed parse id`)
+	assert.Nil(t, err)
 	L.Print(`Time`, time.Unix(0, seg.Time))
 	L.Print(`Counter`, seg.Counter)
 	assert.Equal(t, lexid.AtomicCounter, seg.Counter)
@@ -274,16 +283,15 @@ func TestParseFixedNano(t *testing.T) {
 	assert.Equal(t, lexid.ServerUniqueId, seg.ServerID)
 }
 
-func TestParseFixedOO(t *testing.T) {
+func TestParseFixedObject(t *testing.T) {
 	gen := lexid.NewGenerator(`1`)
 	gen.Separator = ``
 	gen.AtomicCounter = 123
 	gen.ServerUniqueId = `2`
-	L.Print(`MaxTime`, time.Unix(math.MaxInt64, 0))
 	id := gen.ID()
 	print(`id`, id)
 	seg, err := gen.Parse(id)
-	L.IsError(err, `failed parse id`)
+	assert.Nil(t, err)
 	L.Print(`Time`, time.Unix(seg.Time, 0))
 	assert.Equal(t, gen.AtomicCounter, seg.Counter)
 	L.Print(`ServerID`, seg.ServerID)
@@ -299,11 +307,10 @@ func TestParseFixed(t *testing.T) {
 	lexid.Separator = ``
 	lexid.AtomicCounter = 123
 	lexid.ServerUniqueId = `2`
-	L.Print(`MaxTime`, time.Unix(math.MaxInt64, 0))
 	id := lexid.ID()
 	print(`id`, id)
 	seg, err := lexid.Parse(id)
-	L.IsError(err, `failed parse id`)
+	assert.Nil(t, err)
 	L.Print(`Time`, time.Unix(seg.Time, 0))
 	assert.Equal(t, lexid.AtomicCounter, seg.Counter)
 	L.Print(`ServerID`, seg.ServerID)

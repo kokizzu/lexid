@@ -4,10 +4,15 @@
 Can generate ~10 millions id per second (single core only).
 
 Consist of 3 segment:
-- Unix or UnixNano (current time)
-- Atomic Counter (limit to single core)
-- Server Unique ID (or process or thread ID)
-- 2 separator character (default: `~`, can be removed)
+- Unix or UnixNano (current time. 6/11 character)
+- Atomic Counter (limit to single core, 6 character)
+- Server Unique ID (or process or thread ID, min. 0 character)
+- 2 separator character (default: `~`, can be removed, 2x 0-1 character)
+
+```
+Min length (ID without separator and server ID): 6+6+0+0 = 12 bytes
+Max length (NanoID with separator and server ID): 11+6+N+2 = 19+N bytes
+``` 
 
 Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/master/S), URL-safe encoding.
 
@@ -38,17 +43,17 @@ func main() {
 	lexid.AtomicCounter = 0
 	
 	// optional separator, 
-	// you can set to empty string if you set the Min*Length and sure it wont overflow
+	// you can set this to empty string if you set the Min*TimeLength >= 6 or 11
 	lexid.Separator = `~`
 	
 	// optional minimum counter segment length, 
-	// if set lower than 12 will not lexicographically orderable anymore
+	// if set lower than 6 will not lexicographically orderable anymore
 	lexid.MinCounterLength = 0
 	
-	// optional minimum time segment length
+	// optional minimum time segment length, default: 6
 	lexid.MinTimeLength = 0
 	
-	// optional minimum nano time segment length
+	// optional minimum nano time segment length, default: 11
 	lexid.MinNanoTimeLength = 0
 	
 	// smaller id, second resolution
@@ -117,19 +122,26 @@ last 0PDm7hn0KSs~2o80~0
 ## Gotchas
 
 it might not lexicographically ordered if:
-- the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if order doesn't matter if it's the event happened on the same second/nanodescond)
-- the `time` segment already pass current length or you set `MinTimeLength` or `MinNanoTimeLength` too low, workaround: set `MinTimeLength` to `>6` and `MinNanoTimeLength` to `>11`
-- you change `Separator` to other character that have lower ASCII/UTF-8 encoding value
+- the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if ordering doesn't matter if the event happened on the same second/nanodescond)
+- you change `Separator` to other character that have lower ASCII/UTF-8 encoding value.
+- you set `Min*Length` too low, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`
+- the `time` segment already pass the `MinTimeLength`, earliest will happen at year 4147.
 
 it might duplicate if:
-- your processor can call the function above, faster than 4 billion (`MaxUint32`=`4,294,967,295`) per second, there's no workaround for this.
+- your processor so powerful, that it can call the function above faster than 4 billion (`MaxUint32`=`4,294,967,295`) per second, there's no workaround for this.
 - you set the `AtomicCounter` multiple time on the same second/nanosecond (eg. to a number lower than current counter)
+- using same/shared server/process/thread id on different server/process/thread 
+- unsynchronized time on same server
+
+it will impossible to parse (to get time, counter, and server id) if:
+- you set `Separator` to empty string and all other `Min*Length` to lower than recommended value 
+
 
 ## Difference with XID
 
-- have locks, so by default only utilize single core performance (unless using OO version to spawn multiple instance with different server/process/thread id)
+- have locks, so by default only utilize single core performance (unless using the object-oriented version to spawn multiple instance with different server/process/thread id)
 - 256x more uniqueness generated id per sec guaranteed: 4 billion vs 16 million
 - configurable (length, separator, server/process/thread id)
 - same or less length for string representation (depends on your configuration)
 - base63 vs base32
-- defaults to string representation vs have 12-bytes binary representation
+- defaults to string representation (12 to 19+N bytes) vs have 12-bytes binary representation
