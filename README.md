@@ -11,7 +11,7 @@ Consist of 3 segment:
 
 Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/master/S), URL-safe encoding.
 
-## Configuration Difference
+## Configuration Comparison
 
 | Type   | Min[Nano]<br/>Date<br/>Offset | Min[Nano]<br/>Time<br/>Length | Min<br/>Counter<br/>Length | Separator | Byte use<br/>without<br/>Identity | Ordered | Unique |
 |:------:|------------------------------:|------------------------------:|---------------------------:|:---------:|----------------------------------:|:-------:|:------:|
@@ -28,7 +28,7 @@ Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/m
 | NanoID | 1577836800<br>000000000       | 0                             | 0                          | ~         | 12                                | N       | Y      |
 | NanoID | 1577836800<br>000000000       | 0                             | 0                          |           | 11                                | N       | N      |
 
-Uniqueness configuration (when `Separator` or `Min*TimeLength` set)
+Uniqueness configuration (when `Separator` or `Min*TimeLength` set, this is the default)
 ```
 Min length (ID with separator and server identity): 
   6+6+0+1 = 13 bytes
@@ -38,7 +38,7 @@ Max length (NanoID with separator and server identity):
   10+1+N+1 = 12+N bytes (with 2020 offset)
 ``` 
 
-Ordered/sortable configuration (when `Min*TimeLength` set)
+Ordered/sortable configuration (when `Min*TimeLength` set, may unset the `Separator`)
 ```
 Min length (ID without separator and server identity): 
   6+6+0+0 = 12 bytes
