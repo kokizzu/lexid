@@ -1,13 +1,20 @@
 
 # LexID: Fast lexicographically orderable/sortable ID
 
-Can generate ~10 millions id per second (single core only).
+Can generate ~10 millions IDs per second (single core only).
 
 Consist of 3 segment:
-- Unix or UnixNano (current time. 6/11 character)
-- Atomic Counter (limit to single core, 6 character)
-- Server/Process/Thread Unique Identity (min. 0 character)
-- 2 separator character (default: `~`, can be removed, 2x 0-1 character)
+- Unix or UnixNano (current time, `6`/`11` character)
+- Atomic Counter (limit to single core, `6` character)
+- Server/Process/Thread Unique `Identity` (optional, min. `0` character, default: `~0`)
+- 1 or 2 separator character (default: `~`, can be removed, 2x `0`-`1` character)
+
+Default formats:
+- `ID()`: `tttttt~cccccc~i`
+- `NanoID()`: `ttttttttttt~cccccc~i`
+- `t` = timestamp
+- `c` = counter
+- `i` = identity, can be more than 1 character
 
 Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/master/S), URL-safe encoding.
 
@@ -33,19 +40,19 @@ Note: `1577836800` = unix timestamp of `2021-01-01 00:00:00`
 Uniqueness configuration (when `Separator` or `Min*TimeLength` set, this is the default)
 ```
 Min length (ID with separator and server identity): 
-  6+6+0+1 = 13 bytes
-  5+1+0+1 = 7 bytes (with 2020 offset)
+  6+6+0+1 = 13 bytes (format: `tttttt~cccccc`)
+  5+1+0+1 = 7 bytes (with 2020 offset, format: `ttttt`~`c`)
 Max length (NanoID with separator and server identity): 
-  11+6+N+2 = 19+N bytes
-  10+1+N+1 = 12+N bytes (with 2020 offset)
+  11+6+N+2 = 19+N bytes (format: `ttttttttttt~cccccc~i`)
+  10+1+N+1 = 12+N bytes (with 2020 offset, format: `tttttttttt~c~i`)
 ``` 
 
 Ordered/sortable configuration (when `Min*TimeLength` set, may unset the `Separator`)
 ```
 Min length (ID without separator and server identity): 
-  6+6+0+0 = 12 bytes
+  6+6+0+0 = 12 bytes (format: `ttttttcccccc`)
 Max length (NanoID without separator and with server identity): 
-  11+6+N+0 = 17+N bytes
+  11+6+N+0 = 17+N bytes (format: `tttttttttttcccccci`)
 ```
 
 ## Benchmark
@@ -232,10 +239,10 @@ it will impossible to parse (to get time, counter, and server id) if:
 
 ## Difference with XID
 
-- have locks, so by default can only utilize single core (unless using the object-oriented version to spawn multiple instance with different server/process/thread id)
-- 256x more uniqueness generated id per sec guaranteed: 4 billion vs 16 million
+- have locks, so by default can only utilize single core (unless using the object-oriented version to spawn multiple instance with different server/process/thread `Identity`)
+- 256x more max unique IDs per sec guaranteed: 4 billion vs 16 million
 - configurable (length, separator, server/process/thread identity, date offset)
 - EncodeCB63 (base64-variant) vs base32 (20% bigger)
 - defaults to string representation (12 to 17+N bytes) vs have 12-bytes binary representation (20 bytes for string representation)
-- server/process/thread id are optional
+- server/process/thread `Identity` are optional
 - can be offsetted (subtracted with certain value, eg. `2020-01-01 00:00:00`)
