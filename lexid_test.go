@@ -85,6 +85,24 @@ func BenchmarkNanoid(b *testing.B) {
 	}
 }
 
+func BenchmarkLexIdNoLex(b *testing.B) {
+	lexid.Separator = ``
+	lexid.MinTimeLength = 0
+	lexid.MinCounterLength = 0
+	for z := 0; z < b.N; z++ {
+		res := lexid.ID()
+		_ = res
+	}
+}
+
+func BenchmarkLexIdNoSep(b *testing.B) {
+	lexid.Separator = ``
+	for z := 0; z < b.N; z++ {
+		res := lexid.ID()
+		_ = res
+	}
+}
+
 func BenchmarkLexId(b *testing.B) {
 	for z := 0; z < b.N; z++ {
 		res := lexid.ID()

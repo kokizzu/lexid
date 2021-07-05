@@ -26,6 +26,8 @@ BenchmarkTime-8        	 1674458	   712.9 ns/op
 BenchmarkSnowflake-8   	 4909974	   244.8 ns/op
 BenchmarkLexIdNano-8   	 7718455	   142.0 ns/op
 BenchmarkLexId-8       	 9906074	   118.8 ns/op
+BenchmarkLexIdNoSep-8  	10020199	   118.1 ns/op
+BenchmarkLexIdNoLex-8  	10475790	   116.3 ns/op
 BenchmarkXid-8         	13322355	    86.91 ns/op
 PASS
 ```
@@ -51,9 +53,11 @@ func main() {
 	lexid.MinCounterLength = 0
 	
 	// optional minimum time segment length, default: 6
+	// if set lower than 6 might not lexicographically orderable anymore
 	lexid.MinTimeLength = 0
 	
 	// optional minimum nano time segment length, default: 11
+	// if set lower than 11 might not lexicographically orderable anymore
 	lexid.MinNanoTimeLength = 0
 	
 	// smaller id, second resolution
