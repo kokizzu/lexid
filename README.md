@@ -211,21 +211,22 @@ example: 1dGr84ixhV1
 ## Gotchas
 
 it might not lexicographically ordered if:
-- the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if ordering doesn't matter if the event happened on the same second/nanodescond).
+- the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if ordering doesn't matter when the event happened on the same second/nanodescond).
 - you change `Separator` to other character that have lower ASCII/UTF-8 encoding value.
 - you set `Min*Length` less than recommended value, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`.
-- the `time` segment already pass the `MinTimeLength`, earliest will happen at year 4147.
+- you unset `Separator` and set `MinCounterLength` lower than `6`
+- the `time` segment already pass the `MinTimeLength=6`, earliest will happen at year 4147.
 
 it might duplicate if:
-- your processor so powerful, that it can call the function above faster than 4 billion (`MaxUint32`=`4,294,967,295`) per second, there's no workaround for this.
+- your processor so powerful, that it can call the function above 4 billion per second (`MaxUint32`=`4,294,967,295`) per second, there's no workaround for this.
 - you set the `AtomicCounter` multiple time on the same second/nanosecond (eg. to a number lower than current counter).
 - using same/shared `Identity` on different server/process/thread.
 - unsynchronized time on same server.
-- you set `Min*DateOffset` too low/differently on each run.
+- you set `Min*DateOffset` too low or differently on each run.
 - you change `Separator` to empty string or characters that are in `EncodeCB63` with `Min*Length` less than recommended value.
 
 it will impossible to parse (to get time, counter, and server id) if:
-- you set `Separator` to empty string and all other `Min*Length` to lower than recommended value.
+- you unset `Separator` and `Min*Length` to lower than recommended value.
 
 ## Difference with XID
 
