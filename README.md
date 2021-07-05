@@ -1,5 +1,5 @@
 
-# LexID: fast lexicographically orderable ID
+# LexID: Fast lexicographically orderable/sortable ID
 
 Can generate ~10 millions id per second (single core only).
 
@@ -210,7 +210,7 @@ example: 1dGr84ixhV1
 
 ## Gotchas
 
-it might not lexicographically ordered if:
+it might not lexicographically ordered/sorted if:
 - the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if ordering doesn't matter when the event happened on the same second/nanodescond).
 - you change `Separator` to other character that have lower ASCII/UTF-8 encoding value.
 - you set `Min*Length` less than recommended value, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`.
