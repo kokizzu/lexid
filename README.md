@@ -115,6 +115,14 @@ func main() {
 	seg, err := lexid.Parse(id)
 	seg, err = lexid.Parse(nanoid)  
 	
+	// generate id from segment/component
+	id = lexid.FromUnix(time)
+	id = lexid.FromUnixCounter(time,counter)
+	id = lexid.FromUnixCounterIdent(time,counter,identity)
+	id = lexid.FromNano(time)
+	id = lexid.FromNanoCounter(time,counter)
+	id = lexid.FromNanoCounterIdent(time,counter,identity)
+	
 	// object-oriented version, eg. if you need to generate uniquely one per core
 	gen := lexid.NewGenerator(`~1`) // ~2 for 2nd core, ~3 for 3rd core, and so on
 	// gen.Identity = `~1`
@@ -125,6 +133,7 @@ func main() {
 	// gen.MinNanoTimeLength = 11
 	// gen.MinDateOffset = 0 
 	// gen.MinNanoDateOffset = 0 
+	// gen.From*() also exists
 	
 	id = gen.ID()
 	nanoid = gen.NanoID()
