@@ -28,6 +28,8 @@ Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/m
 | NanoID | 1577836800<br>000000000       | 0                             | 0                          | ~         | 12                                | N       | Y      |
 | NanoID | 1577836800<br>000000000       | 0                             | 0                          |           | 11                                | N       | N      |
 
+Note: `1577836800` = unix timestamp of `2021-01-01 00:00:00`
+
 Uniqueness configuration (when `Separator` or `Min*TimeLength` set, this is the default)
 ```
 Min length (ID with separator and server identity): 
@@ -70,17 +72,17 @@ PASS
 import "github.com/kokizzu/lexid"
 
 func main() {
-	// set if multiserver, can be empty if not multi-server
-	lexid.Config.Identity = `~1`
+	// set if multiserver, can be empty if not multi-server/instance
+	lexid.Config.Identity = `` // default: ~0
 	
 	// optional starting counter
 	lexid.Config.AtomicCounter = 0
 	
-	// optional separator
-	// you can set this to empty string if you keep the Min*TimeLength config >= 6 or 11
-	lexid.Config.Separator = ``
+	// optional segment separator
+	// you can set this to empty string if you keep the Min*Length as default 
+	lexid.Config.Separator = `` // default: ~
 	
-	// optional minimum counter segment length, 
+	// optional minimum counter segment length, default: 6
 	// if set lower than 6 will not lexicographically orderable anymore
 	lexid.Config.MinCounterLength = 0
 	
@@ -99,7 +101,7 @@ func main() {
 	// smaller id, second resolution
 	id := lexid.ID()
 	
-	// larger id, nanosecond resolution
+	// larger id, nanosecond resolution (`~5 ms` to be exact)
 	nanoid := lexid.NanoID()
 	
 	// parse to get time, counter, and server id
@@ -211,14 +213,14 @@ example: 1dGr84ixhV1
 ## Gotchas
 
 it might not lexicographically ordered/sorted if:
-- the `AtomicCounter` is overflowed on the exact same second/nanosecond, can be happening when your processor able to call `ID()` function more than 4 billion (`MaxUint32`=`4,294,967,295`) times per second.
-- you change `Separator` to other character that have lower ASCII/UTF-8 encoding value.
+- the `AtomicCounter` is overflowed on the exact same second, can be happening when your processor able to call `ID()` function more than 4 billion (`MaxUint32`=`4,294,967,295`) times per second.
+- you change `Separator` to other character that have lower value than `z` (`122`) of ASCII/UTF-8, the default is `~` (`126`).
 - you set `Min*Length` less than recommended value, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`.
 - you unset `Separator` and set `MinCounterLength` lower than `6`
-- the `time` segment already pass the `MinTimeLength=6`, earliest will happen at year 4147.
+- the `time` segment already pass the `MinTimeLength=6`, earliest will happen at year `4147`.
 
 it might duplicate if:
-- your processor so powerful, that it can call the function `ID()` faster than 4 billion times per second, workaround: use `NanoID()`.
+- your processor too powerful, that it can call the function `ID()` more than 4 billion times per second, workaround: use `NanoID()`.
 - you set the `AtomicCounter` multiple time on the same second/nanosecond (eg. to a number lower than current counter).
 - using same/shared `Identity` on different server/process/thread.
 - unsynchronized time on same server.
