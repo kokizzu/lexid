@@ -9,14 +9,9 @@ Consist of 3 segment:
 - Server/Process/Thread Unique Identity (min. 0 character)
 - 2 separator character (default: `~`, can be removed, 2x 0-1 character)
 
-```
-Min length (ID without separator and server ID): 
-  6+6+0+0 = 12 bytes
-  5+1+0+1 = 7 bytes (with 2020 offset)
-Max length (NanoID with separator and server ID): 
-  11+6+N+2 = 19+N bytes
-  10+1+0+1 = 12 bytes (with 2020 offset)
-``` 
+Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/master/S), URL-safe encoding.
+
+## Configuration Difference
 
 | Type   | Min[Nano]<br/>Date<br/>Offset | Min[Nano]<br/>Time<br/>Length | Min<br/>Counter<br/>Length | Separator | Byte use<br/>without<br/>Identity | Ordered | Unique |
 |:------:|------------------------------:|------------------------------:|---------------------------:|:---------:|----------------------------------:|:-------:|:------:|
@@ -33,8 +28,25 @@ Max length (NanoID with separator and server ID):
 | NanoID | 1577836800<br>000000000       | 0                             | 0                          | ~         | 12                                | N       | Y      |
 | NanoID | 1577836800<br>000000000       | 0                             | 0                          |           | 11                                | N       | N      |
 
+Uniqueness configuration (when `Separator` or `Min*TimeLength` set)
+```
+Min length (ID with separator and server identity): 
+  6+6+0+1 = 13 bytes
+  5+1+0+1 = 7 bytes (with 2020 offset)
+Max length (NanoID with separator and server identity): 
+  11+6+N+2 = 19+N bytes
+  10+1+N+1 = 12+N bytes (with 2020 offset)
+``` 
 
-Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/master/S), URL-safe encoding.
+Ordered/sortable configuration (when `Min*TimeLength` set)
+```
+Min length (ID without separator and server identity): 
+  6+6+0+0 = 12 bytes
+Max length (NanoID without separator and with server identity): 
+  11+6+N+0 = 17+N bytes
+```
+
+## Benchmark
 
 ```
 cpu: AMD Ryzen 3 3100 4-Core Processor    
