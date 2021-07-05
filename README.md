@@ -10,6 +10,7 @@ Consist of 3 segment:
 - 2 separator character (default: `~`, can be removed, 2x 0-1 character)
 
 ```
+Default:
 Min length (ID without separator and server ID): 
   6+6+0+0 = 12 bytes
 Max length (NanoID with separator and server ID): 
@@ -83,7 +84,7 @@ func main() {
 
 ## Example generated id
 
-this shows minimum length and length after 10 million generated id with specific configuration (8-15 characters for `ID`, 15-20 characters for `NanoID`)
+this shows minimum length and length after 10 million generated id with specific configuration (7-15 characters for `ID`, 10-20 characters for `NanoID`)
 
 ```
 ID 
@@ -112,13 +113,13 @@ last 0PDmclT1CmN--a8P00
  len= 17
  
  
-ID Separator=`` ServerUniqueId=`` MinCounterLength=0
+ID Separator=`` ServerUniqueId=`` MinCounterLength=0 -- may duplicate
 first 0Vsccp0
  len= 7
 last 0Vsccpa8P0
  len= 10
 
-NanoID Separator=`` ServerUniqueId=`` MinCounterLength=0
+NanoID Separator=`` ServerUniqueId=`` MinCounterLength=0 -- may duplicate
 first 0PDmclT1CmN0
  len= 12
 last 0PDmclT1CmN~a8P0
@@ -141,20 +142,20 @@ last 0PDm7hn0KSs~2o80~0
 ## Gotchas
 
 it might not lexicographically ordered if:
-- the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if ordering doesn't matter if the event happened on the same second/nanodescond)
+- the `AtomicCounter` is overflowed on the exact same second/nanosecond, you might want to reset the counter every >1 second to overcome this (or you might want to ignore this if ordering doesn't matter if the event happened on the same second/nanodescond).
 - you change `Separator` to other character that have lower ASCII/UTF-8 encoding value.
-- you set `Min*Length` too low, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`
+- you set `Min*Length` too low, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`.
 - the `time` segment already pass the `MinTimeLength`, earliest will happen at year 4147.
 
 it might duplicate if:
 - your processor so powerful, that it can call the function above faster than 4 billion (`MaxUint32`=`4,294,967,295`) per second, there's no workaround for this.
-- you set the `AtomicCounter` multiple time on the same second/nanosecond (eg. to a number lower than current counter)
-- using same/shared server/process/thread id on different server/process/thread 
-- unsynchronized time on same server
+- you set the `AtomicCounter` multiple time on the same second/nanosecond (eg. to a number lower than current counter).
+- using same/shared server/process/thread id on different server/process/thread.
+- unsynchronized time on same server.
+- you change `Separator` to empty string or characters that are in `EncodeCB63` with `Min*Length` less than recommended value.
 
 it will impossible to parse (to get time, counter, and server id) if:
-- you set `Separator` to empty string and all other `Min*Length` to lower than recommended value 
-
+- you set `Separator` to empty string and all other `Min*Length` to lower than recommended value.
 
 ## Difference with XID
 
