@@ -37,11 +37,12 @@ func main() {
 	// optional starting counter
 	lexid.AtomicCounter = 0
 	
-	// optional separator
+	// optional separator, 
+	// you can set to empty string if you set the Min*Length and sure it wont overflow
 	lexid.Separator = `~`
 	
 	// optional minimum counter segment length, 
-	// if set too low will not lexicographically orderable anymore
+	// if set lower than 12 will not lexicographically orderable anymore
 	lexid.MinCounterLength = 0
 	
 	// optional minimum time segment length
@@ -71,7 +72,7 @@ func main() {
 
 ## Example generated id
 
-this shows minimum length and length after 10 million generated id with specific configuration (10-15 characters for `ID`, 15-20 characters for `NanoID`)
+this shows minimum length and length after 10 million generated id with specific configuration (8-15 characters for `ID`, 15-20 characters for `NanoID`)
 
 ```
 ID 
@@ -87,6 +88,19 @@ last 0PDmclT1CmN~--a8P0~0
  len= 20
 
 
+ID Separator=`` MinTimeLength=6
+first 0Vsccp-----00
+ len= 13
+last 0Vsccp--a8P00
+ len= 13
+
+NanoID Separator=`` MinTimeLength=11
+first 0PDmclT1CmN-----00
+ len= 18
+last 0PDmclT1CmN--a8P00
+ len= 18
+ 
+ 
 ID MinCounterLength = 0
 first 0Vsc0a~0~0 
  len=10
