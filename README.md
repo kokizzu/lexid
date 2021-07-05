@@ -170,5 +170,5 @@ it will impossible to parse (to get time, counter, and server id) if:
 - 256x more uniqueness generated id per sec guaranteed: 4 billion vs 16 million
 - configurable (length, separator, server/process/thread id)
 - same or less length for string representation (depends on your configuration)
-- base63 vs base32
+- EncodeCB63 (base64-variant) vs base32 (20% space usage)
 - defaults to string representation (12 to 19+N bytes) vs have 12-bytes binary representation
