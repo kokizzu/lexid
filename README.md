@@ -4,22 +4,22 @@
 Can generate ~10 millions id per second (single core only).
 
 Consist of 3 segment:
-- Unix or UnixNano
+- Unix or UnixNano (current time)
 - Atomic Counter (limit to single core)
 - Server Unique ID (or thread ID)
 
-Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/S)
+Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/master/S)
 
 ```
 cpu: AMD Ryzen 3 3100 4-Core Processor            
 BenchmarkUuid
-BenchmarkUuid-8        	  992215	      1213 ns/op
+BenchmarkUuid-8        	  992215	1213 ns/op
 BenchmarkNanoid
-BenchmarkNanoid-8      	  754716	      1487 ns/op
+BenchmarkNanoid-8      	  754716	1487 ns/op
 BenchmarkLexId
-BenchmarkLexId-8       	10611122	       114.2 ns/op
+BenchmarkLexId-8       	10611122	114.2 ns/op
 BenchmarkLexIdNano
-BenchmarkLexIdNano-8   	 8493916	       138.2 ns/op
+BenchmarkLexIdNano-8   	 8493916	138.2 ns/op
 PASS
 ```
 
