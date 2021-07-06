@@ -248,6 +248,10 @@ it might duplicate if:
 it will impossible to parse (to get time, counter, and server id) if:
 - you unset `Separator` and `Min*Length` to lower than recommended value.
 
+hidden logic/implementation detail?
+- counter resets to 0 when second changed but only when `ID()` called, so it would never overflow (unless your processor too powerful).
+- nanosecond incremented by 1 every 4 billion `NanoID()` calls, so it would never collide.
+
 ## Difference with XID
 
 - have locks, so by default can only utilize single core (unless using the object-oriented version to spawn multiple instance with different server/process/thread `Identity`)
