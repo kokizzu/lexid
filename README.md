@@ -1,7 +1,7 @@
 
 # LexID: Fast lexicographically orderable/sortable ID
 
-Can generate ~10 millions IDs per second (single core only).
+Highly customizable ID generator that can generate ~10 millions IDs per second (single core only).
 
 Consist of 3 segment:
 - Unix or UnixNano (current time, `6`/`11` character)
@@ -79,7 +79,7 @@ PASS
 import "github.com/kokizzu/lexid"
 
 func main() {
-	// set if multiserver, can be empty if not multi-server/instance
+	// set if multiserver, can be empty if not multi-server/process/thread/instance
 	lexid.Config.Identity = `` // default: ~0
 	
 	// optional starting counter
@@ -123,7 +123,9 @@ func main() {
 	id = lexid.FromNanoCounter(time,counter)
 	id = lexid.FromNanoCounterIdent(time,counter,identity)
 	
-	// object-oriented version, eg. if you need to generate uniquely one per core
+	// object-oriented version, 
+	// eg. if you need to generate uniquely one per core/thread
+	//     or when each database table need different ID format
 	gen := lexid.NewGenerator(`~1`) // ~2 for 2nd core, ~3 for 3rd core, and so on
 	// gen.Identity = `~1`
 	// gen.Separator = `~`
@@ -206,11 +208,11 @@ last: 0PDmclT1CmNa8P0
 
 Offsetted config (reduce time segment by 2020-01-01):
 ```
-ID MinTimeLength=0 MinCounterLenght=0
+ID MinTimeLength=0 MinCounterLength=0
 example: 1pkHb~0~0
  len= 9
  
-NanoID MinNanoTimeLength=0 MinCounterLenght=0
+NanoID MinNanoTimeLength=0 MinCounterLength=0
 example: 1dGr84ixhV~1~0
  len= 14
 ``` 
