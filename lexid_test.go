@@ -12,6 +12,7 @@ import (
 	"github.com/kokizzu/gotro/L"
 	"github.com/kokizzu/gotro/S"
 	"github.com/kokizzu/lexid"
+	"github.com/kpango/fastime"
 	"github.com/lithammer/shortuuid/v3"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/rs/xid"
@@ -23,8 +24,8 @@ func ExampleRecommendedMinLength() {
 	L.Print(`recommended MinDateOffset`, lexid.Offset2020.Unix())
 	L.Print(`recommended MinNanoDateOffset`, lexid.Offset2020.UnixNano())
 	L.Print(`recommended/default MinCounterLength`, lexid.Config.MinCounterLength)
-	print(`recommended/default MinTimeLength`, S.EncodeCB63(lexid.Now.UnixNow(), 0))
-	print(`recommended/default MinNanoTimeLength`, S.EncodeCB63(lexid.Now.UnixNanoNow(), 0))
+	print(`recommended/default MinTimeLength`, S.EncodeCB63(fastime.UnixNow(), 0))
+	print(`recommended/default MinNanoTimeLength`, S.EncodeCB63(fastime.UnixNanoNow(), 0))
 
 	timeOverflow := `zzzzzz~0~0`
 	seg, err := lexid.Parse(timeOverflow, false)
@@ -309,7 +310,7 @@ func TestFrom(t *testing.T) {
 	assert.Equal(t, `------~------~0`, id)
 	id = lexid.FromUnix(0)
 	assert.Equal(t, `------~-----0~0`, id)
-	
+
 	id = lexid.FromNanoCounterIdent(0, 0, `~A`)
 	assert.Equal(t, `-----------~------~A`, id)
 	id = lexid.FromNanoCounter(0, 0)
