@@ -70,7 +70,7 @@ BenchmarkLexIdNoSep-8   10396551       116.3 ns/op
 BenchmarkLexIdNoLex-8   10590300       115.1 ns/op
 BenchmarkLexId-8         9991906       114.9 ns/op
 BenchmarkXid-8          13754178        86.02 ns/op
-PASS
+BenchmarkId64-8        276799974         4.362 ns/op
 ```
 
 ## Usage
@@ -265,4 +265,4 @@ hidden logic/implementation detail?
 
 ## See also
 
-[id64](//github.com/kokizzu/id64) - quick non-distributed uint64 id generator
+[id64](//github.com/kokizzu/id64) - quick non-distributed uint64 id generator (can generate ~276 million ID/second)
