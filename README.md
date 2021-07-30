@@ -65,10 +65,10 @@ BenchmarkNanoid-8         759548      1485 ns/op
 BenchmarkUuid-8           935152      1304 ns/op
 BenchmarkTime-8          1690483       720.0 ns/op
 BenchmarkSnowflake-8     4911249       244.7 ns/op
-BenchmarkLexIdNano-8     8483720       138.8 ns/op
-BenchmarkLexIdNoSep-8   10396551       116.3 ns/op
-BenchmarkLexIdNoLex-8   10590300       115.1 ns/op
-BenchmarkLexId-8         9991906       114.9 ns/op
+BenchmarkLexIdNano-8     8483720       138.8 ns/op <--
+BenchmarkLexIdNoSep-8   10396551       116.3 ns/op <--
+BenchmarkLexIdNoLex-8   10590300       115.1 ns/op <--
+BenchmarkLexId-8         9991906       114.9 ns/op <--
 BenchmarkXid-8          13754178        86.02 ns/op
 BenchmarkId64-8        276799974         4.362 ns/op
 ```
