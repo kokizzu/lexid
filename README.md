@@ -261,3 +261,8 @@ hidden logic/implementation detail?
 - defaults to string representation (12 to 17+N bytes) vs have 12-bytes binary representation (20 bytes for string representation)
 - server/process/thread `Identity` are optional
 - can be offsetted (subtracted with certain value, eg. `2020-01-01 00:00:00`)
+
+
+## See also
+
+[id64](//github.com/kokizzu/id64) - quick non-distributed uint64 id generator
