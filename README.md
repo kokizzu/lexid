@@ -236,6 +236,7 @@ it might not lexicographically ordered/sorted if:
 - you set `Min*Length` less than recommended value, it should be `>=6` for `MinTimeLength` and `>=11` for `MinNanoTimeLength`, and `6` for `MinCounterLength`.
 - you unset `Separator` and set `MinCounterLength` lower than `6`
 - the `time` segment already pass the `MinTimeLength=6`, earliest will happen at year `4147`.
+- you change system time to earlier time.
 
 it might duplicate if:
 - your processor too powerful, that it can call the function `ID()` more than 4 billion times per second, workaround: use `NanoID()`.
@@ -244,6 +245,7 @@ it might duplicate if:
 - unsynchronized time on same server.
 - you set `Min*DateOffset` too low or differently on each run.
 - you change `Separator` to empty string or characters that are in `EncodeCB63` with `Min*Length` less than recommended value.
+- you change system time to earlier time.
 
 it will impossible to parse (to get time, counter, and server id) if:
 - you unset `Separator` and `Min*Length` to lower than recommended value.
