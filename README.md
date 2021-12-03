@@ -38,7 +38,7 @@ Based on [lexicographically sortable encoding](//github.com/kokizzu/gotro/tree/m
 Note: `1577836800` = unix timestamp of `2021-01-01 00:00:00`
 
 Uniqueness configuration (when `Separator` or `Min*TimeLength` set, this is the default)
-```
+```shell
 Min length (ID with separator and server identity): 
   6+6+0+1 = 13 bytes (format: `tttttt~cccccc`)
   5+1+0+1 = 7 bytes (with 2020 offset, format: `ttttt`~`c`)
@@ -48,7 +48,7 @@ Max length (NanoID with separator and server identity):
 ``` 
 
 Ordered/sortable configuration (when `Min*TimeLength` set, may unset the `Separator`)
-```
+```shell
 Min length (ID without separator and server identity): 
   6+6+0+0 = 12 bytes (format: `ttttttcccccc`)
 Max length (NanoID without separator and with server identity): 
@@ -57,7 +57,7 @@ Max length (NanoID without separator and with server identity):
 
 ## Benchmark
 
-```
+```shell
 cpu: AMD Ryzen 3 3100 4-Core Processor    
 BenchmarkShortuuid-8      118908      8572 ns/op
 BenchmarkKsuid-8          760924      1493 ns/op
@@ -75,7 +75,7 @@ BenchmarkId64-8        276799974         4.362 ns/op
 
 ## Usage
 
-```
+```go
 import "github.com/kokizzu/lexid"
 
 func main() {
@@ -147,7 +147,7 @@ func main() {
 shows minimum length and length after 1-10 million generated ID with specific configuration (6-15 characters for `ID`, 11-20 characters for `NanoID`). 
 
 Default config (fixed length):
-```
+```shell
 ID 
 first: 0Vsccp~-----0~0
  len= 15
@@ -162,7 +162,7 @@ last: 0PDmclT1CmN~--a8P0~0
 ```
  
 Separatorless config and without Identity:
-```
+```shell
 ID Separator=`` Identity=`` MinTimeLength=6 (default)
 first: 0Vsccp-----0
  len= 12
@@ -177,7 +177,7 @@ last: 0PDmclT1CmN--a8P0
 ```
 
 Variable length config (not lexicographically sortable):
-```
+```shell
 ID MinCounterLength=0
 first: 0Vsc0a~0~0 
  len= 10
@@ -192,7 +192,7 @@ last 0PDm7hn0KSs~2o80~0
 ```
  
 Allows duplicate config:
-```
+```shell
 ID Separator=`` Identity=`` MinCounterLength=0
 first: 0Vsccp0
  len= 7
@@ -207,7 +207,7 @@ last: 0PDmclT1CmNa8P0
 ``` 
 
 Offsetted config (reduce time segment by 2020-01-01):
-```
+```shell
 ID MinTimeLength=0 MinCounterLength=0
 example: 1pkHb~0~0
  len= 9
@@ -218,7 +218,7 @@ example: 1dGr84ixhV~1~0
 ``` 
  
 Offsetted with minimum length and allows duplicate:
-```
+```shell
 ID MinTimeLength=0 MinCounterLength=0 Separator=`` Identity=``
 example: 1pkHb0
  len= 6
