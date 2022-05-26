@@ -10,6 +10,7 @@ fi
 gofmt -s -w . # go fmt `find . -name '*.go' -type f`
 echo "codes formatted.."
 
+go get -u -v github.com/kokizzu/gotro@latest
 go mod tidy -v
 
 # testing if has "gokil" included
