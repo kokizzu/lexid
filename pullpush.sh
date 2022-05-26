@@ -7,7 +7,7 @@ if [ $# -eq 0 ] ; then
 fi
 
 # format indentation
-go fmt ./...
+goimports -w *.go
 echo "codes formatted.."
 
 # update deps
