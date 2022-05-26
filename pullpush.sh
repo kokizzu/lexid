@@ -20,6 +20,8 @@ git status
 read -p "Press Ctrl+C to exit, press any enter key to check the diff..
 "
 
+go mod tidy -v
+
 # recheck again
 git diff --staged
 echo 'Going to commit with message: '\"$*\"
