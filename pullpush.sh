@@ -10,6 +10,8 @@ fi
 gofmt -s -w . # go fmt `find . -name '*.go' -type f`
 echo "codes formatted.."
 
+go mod tidy -v
+
 # testing if has "gokil" included
 ag gokil **/*.go && ( echo 'echo should not import previous gokil library..' ; kill 0 )
 echo "imports checked.."
@@ -19,8 +21,6 @@ git add .
 git status
 read -p "Press Ctrl+C to exit, press any enter key to check the diff..
 "
-
-go mod tidy -v
 
 # recheck again
 git diff --staged
