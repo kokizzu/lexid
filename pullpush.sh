@@ -12,7 +12,7 @@ echo "codes formatted.."
 
 # update deps
 go get -u -v github.com/kokizzu/gotro@latest
-go mod tidy -v
+go mod tidy
 
 # add and commit all files
 git add .
