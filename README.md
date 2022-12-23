@@ -259,8 +259,8 @@ hidden logic/implementation detail?
 - have locks, so by default can only utilize single core (unless using the object-oriented version to spawn multiple instance with different server/process/thread `Identity`)
 - 256x more max unique IDs per sec guaranteed: 4 billion vs 16 million
 - configurable (length, separator, server/process/thread identity, date offset)
-- EncodeCB63 (base64-variant) vs base32 (20% bigger)
-- defaults to string representation (12 to 17+N bytes) vs have 12-bytes binary representation (20 bytes for string representation)
+- EncodeCB63 (base64-variant, smaller) vs base32 (20% bigger)
+- defaults to string representation (12 to 17+N bytes, smaller) vs have 12-bytes binary representation (20 bytes for string representation, longer)
 - server/process/thread `Identity` are optional
 - can be offsetted (subtracted with certain value, eg. `2020-01-01 00:00:00`)
 
