@@ -14,6 +14,7 @@ echo "codes formatted.."
 
 # update deps
 go get -u -v github.com/kokizzu/gotro@latest
+go get -u -v github.com/kokizzu/id64@latest
 go mod tidy
 
 # add and commit all files
