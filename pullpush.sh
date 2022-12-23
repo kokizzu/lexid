@@ -17,6 +17,12 @@ go get -u -v github.com/kokizzu/gotro@latest
 go get -u -v github.com/kokizzu/id64@latest
 go mod tidy
 
+# run linter
+golangci-lint run
+
+# run test
+go test ./...
+
 # add and commit all files
 git add .
 git status

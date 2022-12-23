@@ -11,16 +11,17 @@ import (
 	"github.com/kokizzu/gotro/I"
 	"github.com/kokizzu/gotro/L"
 	"github.com/kokizzu/gotro/S"
-	"github.com/kokizzu/lexid"
 	"github.com/kpango/fastime"
 	"github.com/lithammer/shortuuid/v3"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/rs/xid"
 	"github.com/segmentio/ksuid"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kokizzu/lexid"
 )
 
-func ExampleRecommendedMinLength() {
+func TestRecommendedMinLength(t *testing.T) {
 	L.Print(`recommended MinDateOffset`, lexid.Offset2020.Unix())
 	L.Print(`recommended MinNanoDateOffset`, lexid.Offset2020.UnixNano())
 	L.Print(`recommended/default MinCounterLength`, lexid.Config.MinCounterLength)

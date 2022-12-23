@@ -33,7 +33,7 @@ var Offset2020 time.Time // MinDateOffset = Offset2020.Unix() or MinNanoDateOffs
 var SeparatorIdentity = `~0`
 
 func init() {
-	DefaultMinCounterLength = len(S.EncodeCB63(math.MaxUint32, 0))
+	DefaultMinCounterLength = len(S.EncodeCB63(int64(math.MaxUint32), 0))
 	DefaultMinTimeLength = len(S.EncodeCB63(time.Now().Unix(), 0))
 	DefaultMinNanoTimeLength = len(S.EncodeCB63(time.Now().UnixNano(), 0))
 
@@ -215,8 +215,8 @@ func (gen *Generator) Parse(id string, isNano bool) (*Segments, error) {
 			return nil, fmt.Errorf(`invalid lexid or separator: %#v %s`, segments, gen.Separator)
 		}
 	}
-	timePart, timeOk := S.DecodeCB63(segments[0])
-	ctrPart, ctrOk := S.DecodeCB63(segments[1])
+	timePart, timeOk := S.DecodeCB63[int64](segments[0])
+	ctrPart, ctrOk := S.DecodeCB63[int64](segments[1])
 	var err error
 	if isNano {
 		timePart += gen.MinNanoDateOffset
