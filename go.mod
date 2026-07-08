@@ -1,6 +1,6 @@
 module github.com/kokizzu/lexid
 
-go 1.18
+go 1.25.0
 
 require (
 	github.com/godruoyi/go-snowflake v0.0.2-alpha
@@ -31,9 +31,17 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/yosuke-furukawa/json5 v0.1.1 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
-	golang.org/x/crypto v0.4.0 // indirect
+	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/exp v0.0.0-20221217163422-3c43f8badb15 // indirect
-	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+exclude github.com/docker/docker v20.10.22+incompatible
+
+exclude github.com/docker/cli v20.10.22+incompatible
+
+exclude github.com/opencontainers/runc v1.1.4
+
+exclude github.com/gofiber/fiber/v2 v2.34.0
