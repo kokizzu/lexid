@@ -1,6 +1,6 @@
 module github.com/kokizzu/lexid
 
-go 1.25.0
+go 1.26.10
 
 require (
 	github.com/godruoyi/go-snowflake v0.0.2-alpha
